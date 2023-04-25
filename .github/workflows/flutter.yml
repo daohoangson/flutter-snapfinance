@@ -1,0 +1,29 @@
+name: Flutter
+on:
+  push:
+
+jobs:
+  apk:
+    name: Build Android APKs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          cache: true
+
+      - run: flutter build apk --split-per-abi
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.sha }}-armeabi-v7a
+          path: build/app/outputs/apk/release/app-armeabi-v7a-release.apk
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.sha }}-arm64-v8a
+          path: build/app/outputs/apk/release/app-arm64-v8a-release.apk
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.sha }}-x86_64
+          path: build/app/outputs/apk/release/app-x86_64-release.apk
