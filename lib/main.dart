@@ -20,58 +20,95 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Snap Finance',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const SnapScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+class SnapScreen extends StatefulWidget {
+  const SnapScreen({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<SnapScreen> createState() => _SnapScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _SnapScreenState extends State<SnapScreen> {
+  final cameraController = StreamController<CameraCommand>.broadcast();
+  final numberController = StreamController<OcrNumber>.broadcast();
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  int? _vnd;
+  String? _photoPath;
 
   @override
   Widget build(BuildContext context) {
+    final photoPath = _photoPath;
+    final vnd = _vnd;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+      body: Column(
+        children: [
+          Expanded(
+            child: FittedPreview(
+              child: photoPath == null
+                  ? CameraPreview(commands: cameraController.stream)
+                  : InteractiveViewer(
+                      child: ImageViewer(
+                        numbers: numberController.stream,
+                        onVnd: (vnd) => setState(() => _vnd = vnd),
+                        path: photoPath,
+                      ),
+                    ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+          ),
+          vnd == null
+              ? VndInput(
+                  onDone: _takePhoto,
+                  vndBuilder: VndPreview.new,
+                )
+              : Column(
+                  children: [
+                    VndPreview.vnd(vnd),
+                    OkAgainInput(
+                      onAgain: _again,
+                      onOk: () {},
+                    ),
+                  ],
+                ),
+        ],
       ),
     );
+  }
+
+  void _again() {
+    setState(() {
+      _photoPath = null;
+      _vnd = null;
+    });
+  }
+
+  void _takePhoto(int vnd) async {
+    setState(() {
+      _vnd = vnd;
+    });
+
+    final takePhoto = CommandTakePhoto();
+    cameraController.add(takePhoto);
+    final path = await takePhoto.future;
+    debugPrint('path=$path');
+
+    setState(() {
+      _photoPath = path;
+    });
+
+    if (vnd == 0) {
+      await for (final number in findNumbers(path)) {
+        debugPrint('number=${number.value} ${number.cornerPoints}');
+        numberController.add(number);
+      }
+    }
   }
 }
