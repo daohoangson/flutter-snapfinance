@@ -47,5 +47,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>TODO</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>TODO</string>
 </dict>
 </plist>
