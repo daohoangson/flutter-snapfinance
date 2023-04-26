@@ -5,43 +5,80 @@ import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:snapfinance/3rdparty/ml/find_numbers_command.dart';
 import 'package:snapfinance/3rdparty/ml/ocr_number.dart';
-import 'package:snapfinance/3rdparty/ml/ocr_service.dart';
 
-class OnDeviceOcr implements OcrService {
+class OnDeviceOcr extends StatefulWidget {
+  final Widget child;
+  final Stream<FindNumbersCommand> findNumbersCommands;
+
+  const OnDeviceOcr({
+    required this.child,
+    super.key,
+    required this.findNumbersCommands,
+  });
+
   @override
-  Stream<OcrNumber> findNumbers(String path) async* {
+  State<OnDeviceOcr> createState() => _OnDeviceOcrState();
+}
+
+class _OnDeviceOcrState extends State<OnDeviceOcr> {
+  late final StreamSubscription<FindNumbersCommand> _findNumbersCommands;
+
+  @override
+  void initState() {
+    super.initState();
+    _findNumbersCommands = widget.findNumbersCommands.listen(_onFindNumbers);
+  }
+
+  @override
+  void dispose() {
+    _findNumbersCommands.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+
+  void _onFindNumbers(FindNumbersCommand cmd) async {
     final startedAt = DateTime.now();
     final rootIsolateToken = RootIsolateToken.instance;
     if (rootIsolateToken == null) {
-      throw StateError('findNumbers: rootIsolateToken == null');
+      cmd.completer.completeError(
+        StateError('findNumbers: rootIsolateToken == null'),
+      );
+      return;
     }
 
     final receivePort = ReceivePort();
-    final controller = StreamController<OcrNumber>();
-    await Isolate.spawn(
-      _isolateFindNumbers,
-      [rootIsolateToken, receivePort.sendPort, path],
-    );
+
     receivePort.listen((message) {
       if (message == _isolateDone) {
         receivePort.close();
-        controller.close();
+        cmd.completer.complete();
         final duration = DateTime.now().difference(startedAt);
         debugPrint('findNumbers: duration=$duration');
-      } else {
+        return;
+      }
+
+      if (!cmd.completer.isCompleted) {
         Map<String, dynamic> json = jsonDecode(message);
-        controller.add(OcrNumber.fromJson(json));
+        cmd.sink.add(OcrNumber.fromJson(json));
       }
     });
 
-    yield* controller.stream;
+    Isolate.spawn(
+      _findNumbersIsolateEntryPoint,
+      [rootIsolateToken, receivePort.sendPort, cmd.path],
+    ).then((_) {}, onError: cmd.completer.completeError);
   }
 }
 
 const _isolateDone = 'Isolate: done';
 
-Future<void> _isolateFindNumbers(List<Object> args) async {
+Future<void> _findNumbersIsolateEntryPoint(List<Object> args) async {
   final rootIsolateToken = args[0] as RootIsolateToken;
   final sendPort = args[1] as SendPort;
   final path = args[2] as String;
@@ -71,7 +108,8 @@ Future<void> _isolateFindNumbers(List<Object> args) async {
       sendPort.send(encoded);
     }
   }
-  textRecognizer.close();
+
+  await textRecognizer.close();
 
   sendPort.send(_isolateDone);
 }

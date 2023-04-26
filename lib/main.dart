@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:snapfinance/3rdparty/ml/on_device_ocr.dart';
 import 'package:snapfinance/screens/snap/snap_screen.dart';
 
 void main() {
@@ -14,8 +13,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final ocr = OnDeviceOcr();
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,9 +20,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: SnapScreen(
-        ocr: ocr,
-      ),
+      home: const SnapScreen(),
     );
   }
 }

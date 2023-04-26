@@ -2,18 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:snapfinance/3rdparty/camera/take_photo_command.dart';
-import 'package:snapfinance/3rdparty/ml/ocr_service.dart';
+import 'package:snapfinance/3rdparty/ml/find_numbers_command.dart';
+import 'package:snapfinance/3rdparty/ml/ocr_number.dart';
 import 'package:snapfinance/screens/snap/snap_state.dart';
 
 class SnapController {
-  final OcrService ocr;
-
   final _cameraController = StreamController<TakePhotoCommand>.broadcast();
+  final _ocrController = StreamController<FindNumbersCommand>.broadcast();
   final _stateController = StreamController<SnapState>.broadcast();
 
   SnapState _latest = SnapState.initial();
 
-  SnapController({required this.ocr});
+  Stream<FindNumbersCommand> get findNumberCommands => _ocrController.stream;
 
   Stream<SnapState> get stream => _stateController.stream;
 
@@ -23,6 +23,7 @@ class SnapController {
 
   void dispose() {
     _cameraController.close();
+    _ocrController.close();
     _stateController.close();
   }
 
@@ -52,7 +53,6 @@ class SnapController {
 
   void _takePhoto(StateTakingPhoto value) {
     final takePhoto = TakePhotoCommand();
-    _cameraController.add(takePhoto);
     takePhoto.future.then(
       (photoPath) {
         debugPrint('photoPath=$photoPath');
@@ -60,18 +60,29 @@ class SnapController {
       },
       onError: (error) => move(value, value.failure(error)),
     );
+
+    _cameraController.add(takePhoto);
   }
 
   void _findNumbers(StateProcessingPhoto value) async {
     var processing = value;
-    try {
-      await for (final number in ocr.findNumbers(value.photoPath)) {
-        debugPrint('number=${number.value} ${number.cornerPoints}');
-        processing = move(processing, processing.foundNumber(number));
-      }
-      move(processing, processing.completed());
-    } catch (error) {
-      move(processing, processing.failure(error));
+
+    final result = StreamController<OcrNumber>();
+    final findNumbers = FindNumbersCommand(value.photoPath, result.sink);
+    final f = findNumbers.future.then(
+      (_) => move(processing, processing.completed()),
+      onError: (error) => move(processing, processing.failure(error)),
+    );
+    f.then((_) {
+      // finally: clean up
+      result.close();
+    });
+
+    _ocrController.add(findNumbers);
+
+    await for (final number in result.stream) {
+      debugPrint('number=${number.value} ${number.cornerPoints}');
+      processing = move(processing, processing.foundNumber(number));
     }
   }
 }

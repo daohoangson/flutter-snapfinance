@@ -1,30 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:snapfinance/3rdparty/ml/ocr_service.dart';
+import 'package:snapfinance/3rdparty/ml/on_device_ocr.dart';
 import 'package:snapfinance/screens/snap/snap_controller.dart';
 import 'package:snapfinance/screens/snap/widgets/snap_bottom_sheet.dart';
 import 'package:snapfinance/screens/snap/widgets/snap_viewport.dart';
 import 'package:snapfinance/widgets/fitted_preview.dart';
 
 class SnapScreen extends StatefulWidget {
-  final OcrService ocr;
-
-  const SnapScreen({
-    super.key,
-    required this.ocr,
-  });
+  const SnapScreen({super.key});
 
   @override
   State<SnapScreen> createState() => _SnapScreenState();
 }
 
 class _SnapScreenState extends State<SnapScreen> {
-  late final SnapController controller;
-
-  @override
-  void initState() {
-    super.initState();
-    controller = SnapController(ocr: widget.ocr);
-  }
+  final controller = SnapController();
 
   @override
   void dispose() {
@@ -34,16 +23,19 @@ class _SnapScreenState extends State<SnapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: FittedPreview(
-              child: SnapViewport(controller),
+    return OnDeviceOcr(
+      findNumbersCommands: controller.findNumberCommands,
+      child: Scaffold(
+        body: Column(
+          children: [
+            Expanded(
+              child: FittedPreview(
+                child: SnapViewport(controller),
+              ),
             ),
-          ),
-          SnapBottomSheet(controller),
-        ],
+            SnapBottomSheet(controller),
+          ],
+        ),
       ),
     );
   }
