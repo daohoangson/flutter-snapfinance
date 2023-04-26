@@ -50,12 +50,13 @@ Future<void> _isolateFindNumbers(List<Object> args) async {
   final inputImage = InputImage.fromFilePath(path);
   final textRecognizer = TextRecognizer();
   final recognizedText = await textRecognizer.processImage(inputImage);
-  final numbers = RegExp(r'^[0-9,. ]+$');
+  final numbers = RegExp(r'^(VND|VNĐ)?([0-9,. ]+)(VND|VNĐ|đ|d)?$');
   final notNumbers = RegExp('[,. ]');
 
   for (final block in recognizedText.blocks) {
     for (final line in block.lines) {
-      if (numbers.matchAsPrefix(line.text) == null) {
+      final numberMatch = numbers.matchAsPrefix(line.text);
+      if (numberMatch == null) {
         debugPrint('findNumbers: Ignoring ${line.text}');
         continue;
       }
@@ -63,7 +64,7 @@ Future<void> _isolateFindNumbers(List<Object> args) async {
       final encoded = jsonEncode({
         "cornerPoints":
             line.cornerPoints.map((p) => [p.x, p.y]).toList(growable: false),
-        "text": line.text.replaceAll(notNumbers, ''),
+        "text": numberMatch.group(2)!.replaceAll(notNumbers, ''),
       });
       debugPrint('findNumbers: Sending $encoded');
 
