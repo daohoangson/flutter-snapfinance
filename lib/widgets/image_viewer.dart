@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:snapfinance/3rdparty/ml/ocr_number.dart';
 import 'package:snapfinance/widgets/loading.dart';
 
@@ -97,13 +98,16 @@ class _ImageViewerState extends State<ImageViewer> {
                   return Positioned(
                     top: top,
                     left: left,
-                    child: Opacity(
-                      opacity: .5,
-                      child: ElevatedButton(
-                        onPressed: onPressed != null
-                            ? () => onPressed(number.value)
-                            : null,
-                        child: Text(number.value.toString()),
+                    child: Animate(
+                      effects: const [ScaleEffect()],
+                      child: Opacity(
+                        opacity: .5,
+                        child: ElevatedButton(
+                          onPressed: onPressed != null
+                              ? () => onPressed(number.value)
+                              : null,
+                          child: Text(number.value.toString()),
+                        ),
                       ),
                     ),
                   );

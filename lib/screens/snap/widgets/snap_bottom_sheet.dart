@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:snapfinance/3rdparty/vnd/vnd_input.dart';
 import 'package:snapfinance/3rdparty/vnd/vnd_preview.dart';
 import 'package:snapfinance/screens/snap/snap_controller.dart';
@@ -50,13 +51,22 @@ class SnapBottomSheet extends StatelessWidget {
     return Column(
       children: [
         VndPreview.vnd(value.vnd),
-        OkAgainInput(
-          onAgain: () => controller.move(value, value.reset()),
-          onOk: value is StateReviewing
-              ? value.canContinue
-                  ? () {}
-                  : null
-              : null,
+        Animate(
+          effects: const [
+            SlideEffect(
+              duration: Duration(milliseconds: 100),
+              begin: Offset(.5, .0),
+              end: Offset.zero,
+            ),
+          ],
+          child: OkAgainInput(
+            onAgain: () => controller.move(value, value.reset()),
+            onOk: value is StateReviewing
+                ? value.canContinue
+                    ? () {}
+                    : null
+                : null,
+          ),
         ),
       ],
     );

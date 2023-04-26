@@ -11,6 +11,7 @@ dependencies:
   device_info_plus: ^8.2.0
   flutter:
     sdk: flutter
+  flutter_animate: ^4.1.1+1
   flutter_vnd_keyboard:
     git:
       url: https://github.com/daohoangson/flutter-vnd_keyboard
