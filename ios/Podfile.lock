@@ -2,6 +2,8 @@ PODS:
   - camerawesome (0.0.1):
     - Flutter
     - JPSVolumeButtonHandler
+  - device_info_plus (0.0.1):
+    - Flutter
   - Flutter (1.0.0)
   - google_mlkit_commons (0.2.0):
     - Flutter
@@ -78,6 +80,7 @@ PODS:
 
 DEPENDENCIES:
   - camerawesome (from `.symlinks/plugins/camerawesome/ios`)
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
   - google_mlkit_commons (from `.symlinks/plugins/google_mlkit_commons/ios`)
   - google_mlkit_text_recognition (from `.symlinks/plugins/google_mlkit_text_recognition/ios`)
@@ -104,6 +107,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   camerawesome:
     :path: ".symlinks/plugins/camerawesome/ios"
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
   Flutter:
     :path: Flutter
   google_mlkit_commons:
@@ -115,6 +120,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   camerawesome: 1e06540f60158809bc70f398ed1ac2cf93fe4188
+  device_info_plus: e5c5da33f982a436e103237c0c85f9031142abed
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   google_mlkit_commons: e9070f57232c3a3e4bd42fdfa621bb1f4bb3e709
   google_mlkit_text_recognition: 9967360384e93b09686aca67fc9f13f9a957d770

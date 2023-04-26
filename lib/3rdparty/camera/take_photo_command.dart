@@ -1,7 +1,7 @@
-part of 'camera_preview.dart';
+import 'dart:async';
 
 class TakePhotoCommand {
-  final _completer = Completer<String>();
+  final completer = Completer<String>();
 
-  Future<String> get future => _completer.future;
+  Future<String> get future => completer.future;
 }

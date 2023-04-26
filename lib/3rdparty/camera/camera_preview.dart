@@ -1,13 +1,10 @@
-import 'dart:async';
-
-import 'package:camerawesome/camerawesome_plugin.dart';
-import 'package:camerawesome/pigeon.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:snapfinance/3rdparty/camera/camerawesome_preview.dart';
+import 'package:snapfinance/3rdparty/camera/fake_camera_preview.dart';
+import 'package:snapfinance/3rdparty/camera/take_photo_command.dart';
 import 'package:snapfinance/widgets/loading.dart';
-import 'package:snapfinance/widgets/nope.dart';
-
-part 'take_photo_command.dart';
 
 class CameraPreview extends StatefulWidget {
   final VoidCallback? onInitialized;
@@ -24,67 +21,39 @@ class CameraPreview extends StatefulWidget {
 }
 
 class _CameraPreviewState extends State<CameraPreview> {
-  PhotoCameraState? _photoCameraState;
-  StreamSubscription<TakePhotoCommand>? _takePhotoCommands;
+  final isDevice = ValueNotifier<bool?>(null);
 
   @override
   void initState() {
     super.initState();
-    _takePhotoCommands = widget.takePhotoCommands?.listen(_onTakePhoto);
-  }
 
-  @override
-  void didUpdateWidget(covariant CameraPreview oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (widget.takePhotoCommands != oldWidget.takePhotoCommands) {
-      _takePhotoCommands?.cancel();
-      _takePhotoCommands = widget.takePhotoCommands?.listen(_onTakePhoto);
+    final deviceInfo = DeviceInfoPlugin();
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      deviceInfo.iosInfo.then((_) => isDevice.value = _.isPhysicalDevice);
+    } else if (defaultTargetPlatform == TargetPlatform.android) {
+      deviceInfo.androidInfo.then((_) => isDevice.value = _.isPhysicalDevice);
     }
   }
 
   @override
-  void dispose() {
-    _takePhotoCommands?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return CameraAwesomeBuilder.custom(
-      aspectRatio: CameraAspectRatios.ratio_16_9,
-      builder: (state, _, __) => state.when(
-        onPreparingCamera: (_) => loading,
-        onPhotoMode: (value) {
-          var wasAlreadyInitialized = _photoCameraState != null;
-
-          // TODO: find a better way to do this, it may leak
-          _photoCameraState = value;
-
-          final onInitialized = widget.onInitialized;
-          if (!wasAlreadyInitialized && onInitialized != null) {
-            WidgetsBinding.instance
-                .addPostFrameCallback((_) => onInitialized());
-          }
-
-          return nope;
-        },
-      ),
-      exifPreferences: ExifPreferences(saveGPSLocation: true),
-      saveConfig: SaveConfig.photo(pathBuilder: _pathBuilder),
+    return AnimatedBuilder(
+      animation: isDevice,
+      builder: (_, __) {
+        if (isDevice.value == null) {
+          return loading;
+        } else if (isDevice.value == false) {
+          return FakeCameraPreview(
+            onInitialized: widget.onInitialized,
+            takePhotoCommands: widget.takePhotoCommands,
+          );
+        } else {
+          return CameraAwesomePreview(
+            onInitialized: widget.onInitialized,
+            takePhotoCommands: widget.takePhotoCommands,
+          );
+        }
+      },
     );
-  }
-
-  Future<String> _pathBuilder() async {
-    final extDir = await getTemporaryDirectory();
-    final fileName = DateTime.now().millisecondsSinceEpoch;
-    return '${extDir.path}/$fileName.jpg';
-  }
-
-  void _onTakePhoto(TakePhotoCommand cmd) {
-    _photoCameraState?.takePhoto().then(
-          cmd._completer.complete,
-          onError: cmd._completer.completeError,
-        );
   }
 }

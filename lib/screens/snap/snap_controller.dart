@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:snapfinance/3rdparty/camera/camera_preview.dart';
+import 'package:snapfinance/3rdparty/camera/take_photo_command.dart';
 import 'package:snapfinance/3rdparty/ml/ocr_service.dart';
 import 'package:snapfinance/screens/snap/snap_state.dart';
 
