@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:snapfinance/3rdparty/camera/take_photo_command.dart';
+import 'package:snapfinance/3rdparty/firebase/firebase_logger.dart';
 import 'package:snapfinance/3rdparty/ml/find_numbers_command.dart';
 import 'package:snapfinance/3rdparty/ml/ocr_number.dart';
 import 'package:snapfinance/screens/snap/snap_state.dart';
@@ -38,7 +38,7 @@ class SnapController {
     _latest = next;
 
     if (next.runtimeType != previous.runtimeType) {
-      debugPrint('move: $previous -> $next');
+      logger.debug('move: $previous -> $next');
 
       if (next is StateTakingPhoto) {
         _takePhoto(next);
@@ -54,10 +54,7 @@ class SnapController {
   void _takePhoto(StateTakingPhoto value) {
     final takePhoto = TakePhotoCommand();
     takePhoto.future.then(
-      (photoPath) {
-        debugPrint('photoPath=$photoPath');
-        move(value, value.tookPhoto(photoPath));
-      },
+      (photoPath) => move(value, value.tookPhoto(photoPath)),
       onError: (error) => move(value, value.failure(error)),
     );
 
@@ -81,7 +78,7 @@ class SnapController {
     _ocrController.add(findNumbers);
 
     await for (final number in result.stream) {
-      debugPrint('number=${number.value} ${number.cornerPoints}');
+      logger.verbose('number=${number.value} ${number.cornerPoints}');
       processing = move(processing, processing.foundNumber(number));
     }
   }

@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "95075557711",
+    "project_id": "snapfinance-2023",
+    "storage_bucket": "snapfinance-2023.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:95075557711:android:e38c81860da871fb04a53a",
+        "android_client_info": {
+          "package_name": "com.daohoangson.snapfinance"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "95075557711-7p6spftphh580d6s77u2662uii5ksbnc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtM40GCm9QX7smWevSWOlZ1qGxEzJ8BgY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "95075557711-7p6spftphh580d6s77u2662uii5ksbnc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "95075557711-s1iu39k044nv0gikh73jn3upigpu5lq0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.daohoangson.snapfinance"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

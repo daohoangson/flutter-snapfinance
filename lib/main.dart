@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:snapfinance/3rdparty/firebase/firebase_app.dart';
 import 'package:snapfinance/screens/snap/snap_screen.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runFirebaseApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {

@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:snapfinance/3rdparty/firebase/firebase_logger.dart';
 import 'package:snapfinance/3rdparty/ml/find_numbers_command.dart';
 import 'package:snapfinance/3rdparty/ml/ocr_number.dart';
 
@@ -59,7 +60,7 @@ class _OnDeviceOcrState extends State<OnDeviceOcr> {
         receivePort.close();
         cmd.completer.complete();
         final duration = DateTime.now().difference(startedAt);
-        debugPrint('findNumbers: duration=$duration');
+        logger.debug('findNumbers: duration=$duration');
         return;
       }
 
@@ -94,7 +95,7 @@ Future<void> _findNumbersIsolateEntryPoint(List<Object> args) async {
     for (final line in block.lines) {
       final numberMatch = numbers.matchAsPrefix(line.text);
       if (numberMatch == null) {
-        debugPrint('findNumbers: Ignoring ${line.text}');
+        debugPrint('_findNumbersIsolateEntryPoint: Ignoring ${line.text}');
         continue;
       }
 
@@ -103,7 +104,7 @@ Future<void> _findNumbersIsolateEntryPoint(List<Object> args) async {
             line.cornerPoints.map((p) => [p.x, p.y]).toList(growable: false),
         "text": numberMatch.group(2)!.replaceAll(notNumbers, ''),
       });
-      debugPrint('findNumbers: Sending $encoded');
+      debugPrint('_findNumbersIsolateEntryPoint: Sending $encoded');
 
       sendPort.send(encoded);
     }
