@@ -6,6 +6,7 @@ class VndPreview extends StatelessWidget {
 
   const VndPreview(this.controller, {super.key});
 
+  // TODO: fix this leak
   factory VndPreview.vnd(int vnd) => VndPreview(VndEditingController(vnd: vnd));
 
   @override

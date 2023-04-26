@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:snapfinance/widgets/keyboard_height.dart';
+import 'package:snapfinance/screens/snap/widgets/bottom_sheet_height.dart';
 
 class OkAgainInput extends StatelessWidget {
   final VoidCallback onAgain;
-  final VoidCallback onOk;
+  final VoidCallback? onOk;
 
   const OkAgainInput({
     required this.onAgain,
-    required this.onOk,
+    this.onOk,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    final height = calculateKeyboardHeight(context);
-    final theme = Theme.of(context);
-    return SizedBox(
-      height: height,
+    return BottomSheetHeightBox(
       child: Column(
         children: [
           Expanded(
@@ -44,7 +41,7 @@ class OkAgainInput extends StatelessWidget {
               child: Text(
                 'Again',
                 style: TextStyle(
-                  color: theme.hintColor,
+                  color: Theme.of(context).hintColor,
                 ),
               ),
             ),

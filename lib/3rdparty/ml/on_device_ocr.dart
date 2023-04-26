@@ -5,33 +5,38 @@ import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:snapfinance/features/ml/ocr_number.dart';
+import 'package:snapfinance/3rdparty/ml/ocr_number.dart';
+import 'package:snapfinance/3rdparty/ml/ocr_service.dart';
 
-Stream<OcrNumber> findNumbers(String path) async* {
-  final startedAt = DateTime.now();
-  final rootIsolateToken = RootIsolateToken.instance;
-  if (rootIsolateToken == null) {
-    throw StateError('findNumbers: rootIsolateToken == null');
-  }
-
-  final receivePort = ReceivePort();
-  final controller = StreamController<OcrNumber>();
-  await Isolate.spawn(
-    _isolateFindNumbers,
-    [rootIsolateToken, receivePort.sendPort, path],
-  );
-  receivePort.listen((message) {
-    if (message == _isolateDone) {
-      receivePort.close();
-      final duration = DateTime.now().difference(startedAt);
-      debugPrint('findNumbers: duration=$duration');
-    } else {
-      Map<String, dynamic> json = jsonDecode(message);
-      controller.add(OcrNumber.fromJson(json));
+class OnDeviceOcr implements OcrService {
+  @override
+  Stream<OcrNumber> findNumbers(String path) async* {
+    final startedAt = DateTime.now();
+    final rootIsolateToken = RootIsolateToken.instance;
+    if (rootIsolateToken == null) {
+      throw StateError('findNumbers: rootIsolateToken == null');
     }
-  });
 
-  yield* controller.stream;
+    final receivePort = ReceivePort();
+    final controller = StreamController<OcrNumber>();
+    await Isolate.spawn(
+      _isolateFindNumbers,
+      [rootIsolateToken, receivePort.sendPort, path],
+    );
+    receivePort.listen((message) {
+      if (message == _isolateDone) {
+        receivePort.close();
+        controller.close();
+        final duration = DateTime.now().difference(startedAt);
+        debugPrint('findNumbers: duration=$duration');
+      } else {
+        Map<String, dynamic> json = jsonDecode(message);
+        controller.add(OcrNumber.fromJson(json));
+      }
+    });
+
+    yield* controller.stream;
+  }
 }
 
 const _isolateDone = 'Isolate: done';

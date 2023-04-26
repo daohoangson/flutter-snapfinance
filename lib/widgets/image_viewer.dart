@@ -1,19 +1,18 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:snapfinance/features/ml/ocr_number.dart';
+import 'package:snapfinance/3rdparty/ml/ocr_number.dart';
 import 'package:snapfinance/widgets/loading.dart';
 
 class ImageViewer extends StatefulWidget {
-  final Stream<OcrNumber> numbers;
-  final Function(int) onVnd;
+  final List<OcrNumber> numbers;
+  final Function(int)? onNumberPressed;
   final String path;
 
   const ImageViewer({
     super.key,
     required this.numbers,
-    required this.onVnd,
+    this.onNumberPressed,
     required this.path,
   });
 
@@ -22,10 +21,7 @@ class ImageViewer extends StatefulWidget {
 }
 
 class _ImageViewerState extends State<ImageViewer> {
-  final numbers = <OcrNumber>[];
-
-  late ImageProvider imageProvider;
-  late StreamSubscription<OcrNumber> numbersSubscription;
+  late final ImageProvider imageProvider;
 
   Size? _imageSize;
 
@@ -33,7 +29,6 @@ class _ImageViewerState extends State<ImageViewer> {
   void initState() {
     super.initState();
     imageProvider = FileImage(File(widget.path));
-    numbersSubscription = widget.numbers.listen(_onNumber);
   }
 
   @override
@@ -52,22 +47,6 @@ class _ImageViewerState extends State<ImageViewer> {
   }
 
   @override
-  void didUpdateWidget(covariant ImageViewer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (widget.numbers != oldWidget.numbers) {
-      numbersSubscription.cancel();
-      numbersSubscription = widget.numbers.listen(_onNumber);
-    }
-  }
-
-  @override
-  void dispose() {
-    numbersSubscription.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final imageSize = _imageSize;
 
@@ -81,11 +60,12 @@ class _ImageViewerState extends State<ImageViewer> {
         builder: (context, bc) {
           final width = bc.maxWidth;
           final height = bc.maxHeight;
+          final onPressed = widget.onNumberPressed;
 
           return Stack(
             children: [
               Image(image: imageProvider),
-              ...numbers.map(
+              ...widget.numbers.map(
                 (number) {
                   final topLeft = number.cornerPoints[0];
                   // TODO: verify these coordinates work in both Android & iOS
@@ -97,7 +77,9 @@ class _ImageViewerState extends State<ImageViewer> {
                     child: Opacity(
                       opacity: .5,
                       child: ElevatedButton(
-                        onPressed: () => widget.onVnd(number.value),
+                        onPressed: onPressed != null
+                            ? () => onPressed(number.value)
+                            : null,
                         child: Text(number.value.toString()),
                       ),
                     ),
@@ -109,21 +91,5 @@ class _ImageViewerState extends State<ImageViewer> {
         },
       ),
     );
-  }
-
-  void _onNumber(OcrNumber number) {
-    const min5k = 5000;
-    const max50mil = 50000000;
-    if (number.value < min5k || number.value > max50mil) {
-      return;
-    }
-
-    for (final existing in numbers) {
-      if (number.value == existing.value) {
-        return;
-      }
-    }
-
-    setState(() => numbers.add(number));
   }
 }
