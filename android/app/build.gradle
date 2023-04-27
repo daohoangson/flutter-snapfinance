@@ -57,6 +57,16 @@ android {
         versionName flutterVersionName
     }
 
+    signingConfigs {
+        debug {
+            // keytool -genkey -v -keystore debugkeystore -alias debugalias -keyalg RSA -keysize 2048 -validity 10000
+            keyAlias "debugalias"
+            keyPassword "debugpassword"
+            storeFile file("debugkeystore")
+            storePassword "debugpassword"
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
