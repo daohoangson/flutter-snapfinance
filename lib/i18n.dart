@@ -5,6 +5,8 @@ class _Root {
 
   final screens = const _Screens();
 
+  final thirdParty = const _ThirdParty();
+
   final widgets = const _Widgets();
 }
 
@@ -20,6 +22,20 @@ class _ScreensSnap {
   String get again => 'Again';
 
   String get ok => 'OK';
+}
+
+class _ThirdParty {
+  const _ThirdParty();
+
+  final vnd = const _ThirdPartyVnd();
+}
+
+class _ThirdPartyVnd {
+  const _ThirdPartyVnd();
+
+  String get continue_ => 'Continue';
+
+  String get takePhoto => 'Take photo';
 }
 
 class _Widgets {

@@ -303,8 +303,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "66f5326c896d60eec3676fda72925ae634f54498"
-      resolved-ref: "66f5326c896d60eec3676fda72925ae634f54498"
+      ref: d758b02af3b48382c71018b083e50305b38b623a
+      resolved-ref: d758b02af3b48382c71018b083e50305b38b623a
       url: "https://github.com/daohoangson/flutter-vnd_keyboard"
     source: git
     version: "0.0.1"

@@ -22,7 +22,7 @@ dependencies:
   flutter_vnd_keyboard:
     git:
       url: https://github.com/daohoangson/flutter-vnd_keyboard
-      ref: 66f5326c896d60eec3676fda72925ae634f54498
+      ref: d758b02af3b48382c71018b083e50305b38b623a
   google_mlkit_text_recognition: ^0.5.0 # https://stackoverflow.com/questions/73992337/flutter-build-is-ios-error-xcode-undefined-symbol-objc-msgsend
   intl: ^0.17.0
   path: ^1.8.2
