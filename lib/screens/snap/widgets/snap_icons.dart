@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:snapfinance/widgets/icons/user_icon.dart';
 import 'package:snapfinance/widgets/nope.dart';
 
