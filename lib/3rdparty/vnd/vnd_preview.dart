@@ -28,6 +28,7 @@ class VndPreview extends StatelessWidget {
         autofocus: autofocus,
         controller: controller,
         enabled: enabled,
+        showCursor: false,
         style: Theme.of(context).textTheme.headlineLarge,
       ),
     );
