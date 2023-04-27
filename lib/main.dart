@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_portal/flutter_portal.dart';
 import 'package:snapfinance/3rdparty/firebase/firebase_app.dart';
 import 'package:snapfinance/screens/snap/snap_screen.dart';
 import 'package:snapfinance/theme.dart';
@@ -13,20 +14,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ThemeApp(
-      builder: (context, theme, darkTheme) {
-        return MaterialApp(
-          title: 'Snap Finance',
+    return Portal(
+      child: ThemeApp(
+        builder: (context, theme, darkTheme) {
+          return MaterialApp(
+            title: 'Snap Finance',
 
-          // colors and theme
-          themeMode: ThemeMode.system,
-          theme: theme,
-          darkTheme: darkTheme,
+            // colors and theme
+            themeMode: ThemeMode.system,
+            theme: theme,
+            darkTheme: darkTheme,
 
-          // render now
-          home: const SnapScreen(),
-        );
-      },
+            // render now
+            home: const SnapScreen(),
+          );
+        },
+      ),
     );
   }
 }
