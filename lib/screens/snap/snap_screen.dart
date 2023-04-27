@@ -3,6 +3,7 @@ import 'package:snapfinance/3rdparty/firebase/storage/firebase_storage.dart';
 import 'package:snapfinance/3rdparty/ml/on_device_ocr.dart';
 import 'package:snapfinance/screens/snap/snap_controller.dart';
 import 'package:snapfinance/screens/snap/widgets/snap_bottom_sheet.dart';
+import 'package:snapfinance/screens/snap/widgets/snap_icons.dart';
 import 'package:snapfinance/screens/snap/widgets/snap_viewport.dart';
 import 'package:snapfinance/widgets/fitted_preview.dart';
 import 'package:snapfinance/widgets/upload_progress_bar.dart';
@@ -26,15 +27,25 @@ class _SnapScreenState extends State<SnapScreen> {
   @override
   Widget build(BuildContext context) {
     Widget built = Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: FittedPreview(
-              child: SnapViewport(controller),
+          Column(
+            children: [
+              Expanded(
+                child: FittedPreview(
+                  child: SnapViewport(controller),
+                ),
+              ),
+              UploadProgressBar(controller.uploadProgressStream),
+              SnapBottomSheet(controller),
+            ],
+          ),
+          const Align(
+            alignment: Alignment.topRight,
+            child: SafeArea(
+              child: SnapIcons(),
             ),
           ),
-          UploadProgressBar(controller.uploadProgressStream),
-          SnapBottomSheet(controller),
         ],
       ),
     );

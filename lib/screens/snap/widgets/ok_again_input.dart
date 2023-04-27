@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:snapfinance/i18n.dart';
 import 'package:snapfinance/screens/snap/widgets/bottom_sheet_height.dart';
 
 class OkAgainInput extends StatelessWidget {
@@ -27,7 +28,7 @@ class OkAgainInput extends StatelessWidget {
                     shape: const CircleBorder(),
                   ),
                   child: Text(
-                    'OK',
+                    i18n.screens.snap.ok,
                     style: TextStyle(fontSize: value),
                   ),
                 );
@@ -39,7 +40,7 @@ class OkAgainInput extends StatelessWidget {
             child: TextButton(
               onPressed: onAgain,
               child: Text(
-                'Again',
+                i18n.screens.snap.again,
                 style: TextStyle(
                   color: Theme.of(context).hintColor,
                 ),
