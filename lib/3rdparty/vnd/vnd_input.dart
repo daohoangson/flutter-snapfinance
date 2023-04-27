@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_vnd_keyboard/flutter_vnd_keyboard.dart';
+import 'package:snapfinance/3rdparty/vnd/vnd_preview.dart';
 import 'package:snapfinance/i18n.dart';
 import 'package:snapfinance/screens/snap/widgets/bottom_sheet_height.dart';
 
 class VndInput extends StatefulWidget {
   final double keyboardHeight;
   final Function(int) onDone;
-  final Widget Function(VndEditingController) vndBuilder;
 
   const VndInput({
     required this.keyboardHeight,
     super.key,
     required this.onDone,
-    required this.vndBuilder,
   });
 
   @override
@@ -33,7 +31,7 @@ class _VndInputState extends State<VndInput> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        widget.vndBuilder(vndEditingController),
+        VndPreview(vndEditingController),
         VndKeyboard(
           height: widget.keyboardHeight,
           keyDone: _KeyDone(vndEditingController),

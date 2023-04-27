@@ -27,17 +27,14 @@ class SnapBottomSheet extends StatelessWidget {
         onInitiatingCamera: (_) => VndInput(
           keyboardHeight: calculateBottomSheetHeight(context),
           onDone: (vnd) => controller.move(_, _.setVnd(vnd)),
-          vndBuilder: VndPreview.new,
         ),
         onInitializedCamera: (_) => VndInput(
           keyboardHeight: calculateBottomSheetHeight(context),
           onDone: (vnd) => controller.move(_, _.takePhoto(vnd)),
-          vndBuilder: VndPreview.new,
         ),
         onTakingPhoto: (_) => VndInput(
           keyboardHeight: calculateBottomSheetHeight(context),
           onDone: (vnd) => controller.move(_, _.setVnd(vnd)),
-          vndBuilder: VndPreview.new,
         ),
         onProcessingPhoto: (processing) => _buildOkAgainInput(processing),
         onReviewing: (reviewing) => _buildOkAgainInput(reviewing),
