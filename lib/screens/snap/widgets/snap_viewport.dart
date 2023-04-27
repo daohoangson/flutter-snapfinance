@@ -28,17 +28,22 @@ class SnapViewport extends StatelessWidget {
         takePhotoCommands: controller.takePhotoCommands,
       ),
       onTakingPhoto: (_) => const CameraPreview(),
-      onProcessingPhoto: (_) => ImageViewer(
-        numbers: _.numbers,
-        path: _.photoPath,
-      ),
-      onReviewing: (_) => InteractiveViewer(
-        child: ImageViewer(
-          numbers: _.numbers,
-          onNumberPressed: (v) => controller.move(_, _.setVnd(v)),
-          path: _.photoPath,
-        ),
+      onProcessingPhoto: (processing) => _buildImageViewer(processing),
+      onReviewing: (reviewing) => _buildImageViewer(
+        reviewing,
+        onNumberPressed: (v) => controller.move(reviewing, reviewing.setVnd(v)),
       ),
     );
   }
+
+  Widget _buildImageViewer(Step2 value, {Function(int)? onNumberPressed}) =>
+      StreamBuilder(
+        builder: (context, snapshot) => ImageViewer(
+          numbers: snapshot.requireData,
+          onNumberPressed: onNumberPressed,
+          path: value.photoPath,
+        ),
+        initialData: controller.foundNumbers,
+        stream: controller.foundNumbersStream,
+      );
 }

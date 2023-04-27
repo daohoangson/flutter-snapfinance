@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:snapfinance/3rdparty/camera/take_photo_command.dart';
 
@@ -66,7 +67,7 @@ class _FakeCameraPreviewState extends State<FakeCameraPreview> {
       final buffer = byteData.buffer;
       final extDir = await getTemporaryDirectory();
       final fileName = DateTime.now().millisecondsSinceEpoch;
-      final path = '${extDir.path}/$fileName.jpg';
+      final path = p.join(extDir.path, '$fileName.jpg');
       final file = File(path);
       try {
         await file.writeAsBytes(

@@ -23,7 +23,9 @@ class Logger {
     }
 
     debugPrint(message);
-    debugPrint(error);
+
+    // ignore: avoid_print
+    print(error);
   }
 
   void verbose(String message) {

@@ -1,5 +1,3 @@
-import 'package:snapfinance/3rdparty/ml/ocr_number.dart';
-
 abstract class SnapState {
   const SnapState();
 
@@ -44,7 +42,6 @@ abstract class Step1 implements SnapState {
 
 abstract class Step2 implements Step1 {
   String get photoPath;
-  List<OcrNumber> get numbers;
 }
 
 class StateFailure extends SnapState {
@@ -100,41 +97,14 @@ class StateTakingPhoto extends SnapState implements Step1 {
 
 class StateProcessingPhoto extends SnapState implements Step2 {
   @override
-  final List<OcrNumber> numbers;
-
-  @override
   final String photoPath;
 
   @override
   final int vnd;
 
-  const StateProcessingPhoto._(
-    this.photoPath,
-    this.vnd, {
-    this.numbers = const [],
-  });
+  const StateProcessingPhoto._(this.photoPath, this.vnd);
 
-  StateReviewing completed() =>
-      StateReviewing._(photoPath, vnd, numbers: numbers);
-
-  StateProcessingPhoto foundNumber(OcrNumber number) {
-    const min5k = 5000;
-    const max50mil = 50000000;
-    if (number.value < min5k || number.value > max50mil) {
-      // ignore random numbers
-      return this;
-    }
-
-    for (final existing in this.numbers) {
-      if (number.value == existing.value) {
-        // keep track of each value once to reduce UI noise
-        return this;
-      }
-    }
-
-    final numbers = [...this.numbers, number];
-    return StateProcessingPhoto._(photoPath, vnd, numbers: numbers);
-  }
+  StateReviewing completed() => StateReviewing._(photoPath, vnd);
 
   @override
   SnapState setVnd(int newVnd) => throw UnimplementedError();
@@ -142,19 +112,15 @@ class StateProcessingPhoto extends SnapState implements Step2 {
 
 class StateReviewing extends SnapState implements Step2 {
   @override
-  final List<OcrNumber> numbers;
-
-  @override
   final String photoPath;
 
   @override
   final int vnd;
 
-  const StateReviewing._(this.photoPath, this.vnd, {this.numbers = const []});
+  const StateReviewing._(this.photoPath, this.vnd);
 
   bool get canContinue => vnd > 0;
 
   @override
-  SnapState setVnd(int newVnd) =>
-      StateReviewing._(photoPath, newVnd, numbers: numbers);
+  SnapState setVnd(int newVnd) => StateReviewing._(photoPath, newVnd);
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:camerawesome/pigeon.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:snapfinance/3rdparty/camera/take_photo_command.dart';
 import 'package:snapfinance/widgets/loading.dart';
@@ -77,7 +78,7 @@ class _CameraAwesomePreviewState extends State<CameraAwesomePreview> {
   Future<String> _pathBuilder() async {
     final extDir = await getTemporaryDirectory();
     final fileName = DateTime.now().millisecondsSinceEpoch;
-    return '${extDir.path}/$fileName.jpg';
+    return p.join(extDir.path, '$fileName.jpg');
   }
 
   void _onTakePhoto(TakePhotoCommand cmd) {

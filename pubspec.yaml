@@ -15,6 +15,7 @@ dependencies:
   firebase_core: ^1.15.0 # https://github.com/firebase/flutterfire/commit/faaf449624ff4081cbbc0f241fec3134492cbdb3 for https://github.com/firebase/firebase-ios-sdk/commit/f5038c2df5a636a2144519e70b25433d188638e2 for GTMSessionFetcher/Core v1
   firebase_core_platform_interface: 4.5.1
   firebase_crashlytics: ^2.3.0 # https://github.com/firebase/flutterfire/blame/b81a6eb88aade38ec802dcdf18939b522e61ec8e/packages/firebase_crashlytics/firebase_crashlytics/pubspec.yaml
+  firebase_storage: ^10.1.0 # https://github.com/firebase/flutterfire/blame/b81a6eb88aade38ec802dcdf18939b522e61ec8e/packages/firebase_storage/firebase_storage/pubspec.yaml
   flutter:
     sdk: flutter
   flutter_animate: ^4.1.1+1
@@ -24,7 +25,9 @@ dependencies:
       ref: 66f5326c896d60eec3676fda72925ae634f54498
   google_mlkit_text_recognition: ^0.5.0 # https://stackoverflow.com/questions/73992337/flutter-build-is-ios-error-xcode-undefined-symbol-objc-msgsend
   intl: ^0.17.0
+  path: ^1.8.2
   path_provider: ^2.0.14
+  rxdart: ^0.27.7
 
 dev_dependencies:
   flutter_test:

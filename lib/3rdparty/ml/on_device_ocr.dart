@@ -48,7 +48,7 @@ class _OnDeviceOcrState extends State<OnDeviceOcr> {
     final rootIsolateToken = RootIsolateToken.instance;
     if (rootIsolateToken == null) {
       cmd.completer.completeError(
-        StateError('findNumbers: rootIsolateToken == null'),
+        StateError('_onFindNumbers: rootIsolateToken == null'),
       );
       return;
     }
@@ -60,7 +60,7 @@ class _OnDeviceOcrState extends State<OnDeviceOcr> {
         receivePort.close();
         cmd.completer.complete();
         final duration = DateTime.now().difference(startedAt);
-        logger.debug('findNumbers: duration=$duration');
+        logger.debug('_onFindNumbers: duration=$duration');
         return;
       }
 
