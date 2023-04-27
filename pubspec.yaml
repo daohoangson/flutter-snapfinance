@@ -16,6 +16,7 @@ dependencies:
   firebase_core_platform_interface: 4.5.1
   firebase_crashlytics: ^2.3.0 # https://github.com/firebase/flutterfire/blame/b81a6eb88aade38ec802dcdf18939b522e61ec8e/packages/firebase_crashlytics/firebase_crashlytics/pubspec.yaml
   firebase_storage: ^10.1.0 # https://github.com/firebase/flutterfire/blame/b81a6eb88aade38ec802dcdf18939b522e61ec8e/packages/firebase_storage/firebase_storage/pubspec.yaml
+  flex_color_scheme: ^7.0.4
   flutter:
     sdk: flutter
   flutter_animate: ^4.1.1+1

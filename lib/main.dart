@@ -1,28 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:snapfinance/3rdparty/firebase/firebase_app.dart';
 import 'package:snapfinance/screens/snap/snap_screen.dart';
+import 'package:snapfinance/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runFirebaseApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Snap Finance',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const SnapScreen(),
+    return ThemeApp(
+      builder: (context, theme, darkTheme) {
+        return MaterialApp(
+          title: 'Snap Finance',
+
+          // colors and theme
+          themeMode: ThemeMode.system,
+          theme: theme,
+          darkTheme: darkTheme,
+
+          // render now
+          home: const SnapScreen(),
+        );
+      },
     );
   }
 }
