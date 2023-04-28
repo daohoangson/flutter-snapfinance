@@ -27,3 +27,14 @@ jobs:
         with:
           name: ${{ github.sha }}-x86_64
           path: build/app/outputs/apk/release/app-x86_64-release.apk
+
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          cache: true
+      - run: flutter test --coverage
+      - uses: codecov/codecov-action@v3
