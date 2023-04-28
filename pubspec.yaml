@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   camerawesome: ^1.4.0
+  cloud_firestore: ^3.5.1
   device_info_plus: ^8.2.0
   equatable: ^2.0.5
   firebase_analytics: ^9.0.0-dev.2 # https://github.com/firebase/flutterfire/blame/b81a6eb88aade38ec802dcdf18939b522e61ec8e/packages/firebase_analytics/firebase_analytics/pubspec.yaml

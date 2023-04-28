@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:snapfinance/3rdparty/vnd/vnd_input.dart';
-import 'package:snapfinance/3rdparty/vnd/vnd_preview.dart';
+import 'package:snapfinance/i18n.dart';
 import 'package:snapfinance/screens/snap/snap_controller.dart';
 import 'package:snapfinance/screens/snap/snap_state.dart';
-import 'package:snapfinance/screens/snap/widgets/bottom_sheet_height.dart';
-import 'package:snapfinance/screens/snap/widgets/ok_again_input.dart';
+import 'package:snapfinance/screens/snap/widgets/bottom_sheet_panel.dart';
+import 'package:snapfinance/screens/snap/widgets/two_buttons.dart';
 
 class SnapBottomSheet extends StatelessWidget {
   final SnapController controller;
@@ -14,16 +13,11 @@ class SnapBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final phrases = i18n.screens.snap;
+
     return StreamBuilder(
       builder: (context, snapshot) => snapshot.requireData.map(
-        onFailure: (state) => BottomSheetHeightBox(
-          child: Center(
-            child: Text(
-              state.error.toString(),
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          ),
-        ),
+        onFailure: _onFailure,
         onInitiatingCamera: (_) => VndInput(
           keyboardHeight: calculateBottomSheetHeight(context),
           onDone: (vnd) => controller.move(_, _.setVnd(vnd)),
@@ -36,36 +30,60 @@ class SnapBottomSheet extends StatelessWidget {
           keyboardHeight: calculateBottomSheetHeight(context),
           onDone: (vnd) => controller.move(_, _.setVnd(vnd)),
         ),
-        onProcessingPhoto: (processing) => _buildOkAgainInput(processing),
-        onReviewing: (reviewing) => _buildOkAgainInput(reviewing),
+        onProcessingPhoto: _onProcessingPhotoOrReviewing,
+        onReviewing: _onProcessingPhotoOrReviewing,
+        onAddingTransaction: (adding) => TwoButtons(
+          positiveText: phrases.addingTransactionRandomized,
+          value: adding,
+        ),
+        onAddedTransaction: (added) => TwoButtons(
+          positiveOnPressed: () => controller.move(added, added.reset()),
+          positiveText: phrases.done,
+          value: added,
+        ),
       ),
       initialData: controller.value,
       stream: controller.stream,
     );
   }
 
-  Widget _buildOkAgainInput(Step2 value) {
-    return Column(
-      children: [
-        VndPreview.vnd(value.vnd),
-        Animate(
-          effects: const [
-            SlideEffect(
-              duration: Duration(milliseconds: 100),
-              begin: Offset(.5, .0),
-              end: Offset.zero,
+  Widget _onFailure(StateFailure failure) {
+    final previous = failure.previous;
+    return Builder(
+      builder: (context) {
+        return BottomSheetPanel(
+          value: previous is Step1 ? previous : null,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                failure.error.toString(),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
             ),
-          ],
-          child: OkAgainInput(
-            onAgain: () => controller.move(value, value.reset()),
-            onOk: value is StateReviewing
-                ? value.canContinue
-                    ? () {}
-                    : null
-                : null,
           ),
-        ),
-      ],
+        );
+      },
+    );
+  }
+
+  Widget _onProcessingPhotoOrReviewing(Step2 value) {
+    final phrases = i18n.screens.snap;
+    final reviewing = value is StateReviewing ? value : null;
+    final canContinue = reviewing?.canContinue ?? false;
+
+    return TwoButtons(
+      negativeOnPressed: () => controller.move(value, value.reset()),
+      negativeText: phrases.again,
+      positiveOnPressed: canContinue && reviewing != null
+          ? () => controller.move(reviewing, reviewing.confirm())
+          : null,
+      positiveText: canContinue
+          ? phrases.save
+          : (controller.foundNumbers.isNotEmpty
+              ? phrases.tapNumber
+              : phrases.tapNumberNada),
+      value: value,
     );
   }
 }

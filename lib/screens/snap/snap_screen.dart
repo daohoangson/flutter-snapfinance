@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:snapfinance/3rdparty/firebase/db/firebase_db.dart';
 import 'package:snapfinance/3rdparty/firebase/storage/firebase_storage.dart';
 import 'package:snapfinance/3rdparty/ml/on_device_ocr.dart';
 import 'package:snapfinance/screens/snap/snap_controller.dart';
@@ -36,7 +37,7 @@ class _SnapScreenState extends State<SnapScreen> {
                   child: SnapViewport(controller),
                 ),
               ),
-              UploadProgressBar(controller.uploadProgressStream),
+              UploadProgressBar(controller.totalProgressStream),
               SnapBottomSheet(controller),
             ],
           ),
@@ -49,6 +50,14 @@ class _SnapScreenState extends State<SnapScreen> {
         ],
       ),
     );
+
+    final addTransactionCommands = controller.addTransactionCommands;
+    if (addTransactionCommands != null) {
+      built = FirebaseDbApp(
+        addTransactionCommands: addTransactionCommands,
+        child: built,
+      );
+    }
 
     final findNumberCommands = controller.findNumberCommands;
     if (findNumberCommands != null) {

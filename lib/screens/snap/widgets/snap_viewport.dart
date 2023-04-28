@@ -28,15 +28,17 @@ class SnapViewport extends StatelessWidget {
         takePhotoCommands: controller.takePhotoCommands,
       ),
       onTakingPhoto: (_) => const CameraPreview(),
-      onProcessingPhoto: (processing) => _buildImageViewer(processing),
-      onReviewing: (reviewing) => _buildImageViewer(
+      onProcessingPhoto: (processing) => _buildNumbers(processing),
+      onReviewing: (reviewing) => _buildNumbers(
         reviewing,
         onNumberPressed: (v) => controller.move(reviewing, reviewing.setVnd(v)),
       ),
+      onAddingTransaction: (adding) => _buildStaticImage(adding),
+      onAddedTransaction: (added) => _buildStaticImage(added),
     );
   }
 
-  Widget _buildImageViewer(Step2 value, {Function(int)? onNumberPressed}) =>
+  Widget _buildNumbers(Step2 value, {Function(int)? onNumberPressed}) =>
       StreamBuilder(
         builder: (context, snapshot) => ImageViewer(
           numbers: snapshot.requireData,
@@ -45,5 +47,10 @@ class SnapViewport extends StatelessWidget {
         ),
         initialData: controller.foundNumbers,
         stream: controller.foundNumbersStream,
+      );
+
+  Widget _buildStaticImage(Step2 value) => ImageViewer(
+        numbers: const [],
+        path: value.photoPath,
       );
 }

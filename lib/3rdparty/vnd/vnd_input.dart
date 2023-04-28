@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vnd_keyboard/flutter_vnd_keyboard.dart';
 import 'package:snapfinance/3rdparty/vnd/vnd_preview.dart';
 import 'package:snapfinance/i18n.dart';
-import 'package:snapfinance/screens/snap/widgets/bottom_sheet_height.dart';
+import 'package:snapfinance/screens/snap/widgets/bottom_sheet_panel.dart';
 
 class VndInput extends StatefulWidget {
   final double keyboardHeight;

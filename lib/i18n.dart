@@ -1,3 +1,5 @@
+import 'dart:math';
+
 final i18n = _Root();
 
 class _Root {
@@ -19,9 +21,25 @@ class _Screens {
 class _ScreensSnap {
   const _ScreensSnap();
 
+  String get addingTransactionRandomized {
+    const options = <String>[
+      'Almost done...',
+      'Hang in there...',
+      'Saving...',
+    ];
+    final random = Random().nextInt(options.length);
+    return options[random];
+  }
+
   String get again => 'Again';
 
-  String get ok => 'OK';
+  String get done => 'Done';
+
+  String get save => 'Save';
+
+  String get tapNumber => 'Tap a number 👆';
+
+  String get tapNumberNada => 'No numbers? 😢';
 }
 
 class _ThirdParty {
