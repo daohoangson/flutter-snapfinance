@@ -37,4 +37,9 @@ jobs:
         with:
           cache: true
       - run: flutter test --coverage
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: test-failures
+          path: test/**/failures
       - uses: codecov/codecov-action@v3
