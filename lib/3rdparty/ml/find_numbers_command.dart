@@ -6,9 +6,9 @@ class FindNumbersCommand {
   final completer = Completer<void>();
 
   final String path;
-  final Sink<OcrNumber> sink;
+  final Sink<OcrNumber>? numbers;
 
-  FindNumbersCommand(this.path, this.sink);
+  FindNumbersCommand(this.path, this.numbers);
 
   Future<void> get future => completer.future;
 }

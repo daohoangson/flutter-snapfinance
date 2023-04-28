@@ -63,10 +63,10 @@ class _FirebaseStorageAppState extends State<FirebaseStorageApp> {
           logger.verbose('$basename: paused');
           break;
         case TaskState.running:
-          cmd.progress.add(snapshot.bytesTransferred / snapshot.totalBytes);
+          cmd.progress?.add(snapshot.bytesTransferred / snapshot.totalBytes);
           break;
         case TaskState.success:
-          cmd.progress.add(1.0);
+          cmd.progress?.add(1.0);
           final duration = DateTime.now().difference(startedAt);
           logger.debug(
             '_onUploadFile: bytesTransferred=${snapshot.bytesTransferred} '
@@ -74,10 +74,10 @@ class _FirebaseStorageAppState extends State<FirebaseStorageApp> {
           );
           break;
         case TaskState.canceled:
-          cmd.progress.addError(StateError('TaskState.canceled'));
+          cmd.progress?.addError(StateError('TaskState.canceled'));
           break;
         case TaskState.error:
-          cmd.progress.addError(StateError('TaskState.error'));
+          cmd.progress?.addError(StateError('TaskState.error'));
           break;
       }
     }

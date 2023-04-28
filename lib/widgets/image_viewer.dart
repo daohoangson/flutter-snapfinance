@@ -6,6 +6,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:snapfinance/3rdparty/ml/ocr_number.dart';
 import 'package:snapfinance/widgets/loading.dart';
 
+@visibleForTesting
+var debugUseAssetImage = false;
+
 class ImageViewer extends StatefulWidget {
   final List<OcrNumber> numbers;
   final Function(int)? onNumberPressed;
@@ -30,7 +33,12 @@ class _ImageViewerState extends State<ImageViewer> {
   @override
   void initState() {
     super.initState();
-    imageProvider = FileImage(File(widget.path));
+
+    if (debugUseAssetImage) {
+      imageProvider = AssetImage(widget.path);
+    } else {
+      imageProvider = FileImage(File(widget.path));
+    }
   }
 
   @override

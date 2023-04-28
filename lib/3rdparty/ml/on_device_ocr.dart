@@ -66,7 +66,7 @@ class _OnDeviceOcrState extends State<OnDeviceOcr> {
 
       if (!cmd.completer.isCompleted) {
         Map<String, dynamic> json = jsonDecode(message);
-        cmd.sink.add(OcrNumber.fromJson(json));
+        cmd.numbers?.add(OcrNumber.fromJson(json));
       }
     });
 

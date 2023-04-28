@@ -1,6 +1,11 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
+
 final i18n = _Root();
+
+@visibleForTesting
+int? debugRandomSeed;
 
 class _Root {
   _Root();
@@ -27,7 +32,7 @@ class _ScreensSnap {
       'Hang in there...',
       'Saving...',
     ];
-    final random = Random().nextInt(options.length);
+    final random = Random(debugRandomSeed).nextInt(options.length);
     return options[random];
   }
 

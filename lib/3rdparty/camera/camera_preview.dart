@@ -6,6 +6,9 @@ import 'package:snapfinance/3rdparty/camera/fake_camera_preview.dart';
 import 'package:snapfinance/3rdparty/camera/take_photo_command.dart';
 import 'package:snapfinance/widgets/loading.dart';
 
+@visibleForTesting
+bool? debugIsDeviceOverride;
+
 class CameraPreview extends StatefulWidget {
   final VoidCallback? onInitialized;
   final Stream<TakePhotoCommand>? takePhotoCommands;
@@ -21,11 +24,15 @@ class CameraPreview extends StatefulWidget {
 }
 
 class _CameraPreviewState extends State<CameraPreview> {
-  final isDevice = ValueNotifier<bool?>(null);
+  final isDevice = ValueNotifier<bool?>(debugIsDeviceOverride);
 
   @override
   void initState() {
     super.initState();
+
+    if (isDevice.value != null) {
+      return;
+    }
 
     final deviceInfo = DeviceInfoPlugin();
     if (defaultTargetPlatform == TargetPlatform.iOS) {

@@ -8,34 +8,25 @@ import 'package:snapfinance/3rdparty/firebase/storage/upload_file_command.dart';
 import 'package:snapfinance/3rdparty/ml/find_numbers_command.dart';
 import 'package:snapfinance/3rdparty/ml/ocr_number.dart';
 import 'package:snapfinance/screens/snap/snap_progress.dart';
+import 'package:snapfinance/screens/snap/snap_services.dart';
 import 'package:snapfinance/screens/snap/snap_state.dart';
 
 class SnapController {
+  final SnapServices services;
+
   final _stateController =
       BehaviorSubject<SnapState>.seeded(SnapState.initial());
   final _totalProgress = SnapProgress();
 
-  final _cameraController = StreamController<TakePhotoCommand>.broadcast();
-  final _dbController = StreamController<AddTransactionCommand>.broadcast();
-  final _ocrController = StreamController<FindNumbersCommand>.broadcast();
   final _ocrResult = BehaviorSubject<List<OcrNumber>>.seeded(const []);
-  final _storageController = StreamController<UploadFileCommand>.broadcast();
 
-  Stream<AddTransactionCommand>? get addTransactionCommands =>
-      _dbController.stream;
-
-  Stream<FindNumbersCommand>? get findNumberCommands => _ocrController.stream;
+  SnapController(this.services);
 
   Stream<List<OcrNumber>> get foundNumbersStream => _ocrResult.stream;
 
   List<OcrNumber> get foundNumbers => _ocrResult.value;
 
   Stream<SnapState> get stream => _stateController.stream;
-
-  Stream<TakePhotoCommand>? get takePhotoCommands => _cameraController.stream;
-
-  Stream<UploadFileCommand>? get uploadFileCommands =>
-      _storageController.stream;
 
   Stream<double> get totalProgressStream => _totalProgress.stream;
 
@@ -47,10 +38,7 @@ class SnapController {
     _stateController.close();
     _totalProgress.close();
 
-    _cameraController.close();
-    _ocrController.close();
     _ocrResult.close();
-    _storageController.close();
   }
 
   T move<T extends SnapState>(SnapState previous, T next) {
@@ -92,8 +80,8 @@ class SnapController {
   }
 
   void _step1TakePhoto(StateTakingPhoto value) {
-    final takePhoto = TakePhotoCommand();
-    takePhoto.future.then(
+    final cmd = TakePhotoCommand();
+    cmd.future.then(
       (photoPath) {
         move(value, value.tookPhoto(photoPath));
         _totalProgress.tookPhoto();
@@ -101,13 +89,13 @@ class SnapController {
       onError: (error) => move(value, value.failure(error)),
     );
 
-    _cameraController.add(takePhoto);
+    services.takePhoto(cmd);
   }
 
   void _step2FindNumbers(StateProcessingPhoto processing) async {
     final result = StreamController<OcrNumber>();
-    final findNumbers = FindNumbersCommand(processing.photoPath, result.sink);
-    final f = findNumbers.future.then(
+    final cmd = FindNumbersCommand(processing.photoPath, result.sink);
+    final f = cmd.future.then(
       (_) => move(processing, processing.completed()),
       onError: (error) => move(processing, processing.failure(error)),
     );
@@ -116,7 +104,7 @@ class SnapController {
       result.close();
     });
 
-    _ocrController.add(findNumbers);
+    services.findNumbers(cmd);
 
     var numbers = <OcrNumber>[];
     await for (final number in result.stream) {
@@ -149,9 +137,8 @@ class SnapController {
 
   void _step2UploadFile(Step2 step2) async {
     final result = StreamController<double>();
-    final uploadFile = UploadFileCommand(step2.photoPath, result.sink);
-
-    _storageController.add(uploadFile);
+    final cmd = UploadFileCommand(step2.photoPath, result.sink);
+    services.uploadFile(cmd);
 
     await for (final uploadProgress in result.stream) {
       logger.verbose('uploadProgress=$uploadProgress');
@@ -167,10 +154,10 @@ class SnapController {
   }
 
   void _step3AddTransaction(StateAddingTransaction adding) async {
-    final addTransaction = AddTransactionCommand(
+    final cmd = AddTransactionCommand(
       vnd: adding.vnd,
     );
-    addTransaction.future.then(
+    cmd.future.then(
       (transactionId) {
         move(adding, adding.addedTransaction(transactionId));
         _totalProgress.addedTransaction();
@@ -178,6 +165,6 @@ class SnapController {
       onError: (error) => move(adding, adding.failure(error)),
     );
 
-    _dbController.add(addTransaction);
+    services.addTransaction(cmd);
   }
 }

@@ -25,13 +25,13 @@ class SnapViewport extends StatelessWidget {
         onInitialized: () => controller.move(_, _.initialized()),
       ),
       onInitializedCamera: (_) => CameraPreview(
-        takePhotoCommands: controller.takePhotoCommands,
+        takePhotoCommands: controller.services.takePhotoCommands,
       ),
       onTakingPhoto: (_) => const CameraPreview(),
       onProcessingPhoto: (processing) => _buildNumbers(processing),
       onReviewing: (reviewing) => _buildNumbers(
         reviewing,
-        onNumberPressed: (v) => controller.move(reviewing, reviewing.setVnd(v)),
+        onNumberPressed: (v) => controller.move(reviewing, reviewing.tapVnd(v)),
       ),
       onAddingTransaction: (adding) => _buildStaticImage(adding),
       onAddedTransaction: (added) => _buildStaticImage(added),

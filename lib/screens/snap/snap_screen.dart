@@ -3,6 +3,7 @@ import 'package:snapfinance/3rdparty/firebase/db/firebase_db.dart';
 import 'package:snapfinance/3rdparty/firebase/storage/firebase_storage.dart';
 import 'package:snapfinance/3rdparty/ml/on_device_ocr.dart';
 import 'package:snapfinance/screens/snap/snap_controller.dart';
+import 'package:snapfinance/screens/snap/snap_services.dart';
 import 'package:snapfinance/screens/snap/widgets/snap_bottom_sheet.dart';
 import 'package:snapfinance/screens/snap/widgets/snap_icons.dart';
 import 'package:snapfinance/screens/snap/widgets/snap_viewport.dart';
@@ -17,17 +18,68 @@ class SnapScreen extends StatefulWidget {
 }
 
 class _SnapScreenState extends State<SnapScreen> {
-  final controller = SnapController();
+  late final SnapController controller;
+  final services = SnapServices();
+
+  @override
+  void initState() {
+    super.initState();
+    controller = SnapController(services);
+  }
 
   @override
   void dispose() {
     controller.dispose();
+    services.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget built = Scaffold(
+    Widget built = SnapScreenInner(controller, services);
+
+    final addTransactionCommands = services.addTransactionCommands;
+    if (addTransactionCommands != null) {
+      built = FirebaseDbApp(
+        addTransactionCommands: addTransactionCommands,
+        child: built,
+      );
+    }
+
+    final findNumbersCommands = services.findNumbersCommands;
+    if (findNumbersCommands != null) {
+      built = OnDeviceOcr(
+        findNumbersCommands: findNumbersCommands,
+        child: built,
+      );
+    }
+
+    final uploadFileCommands = services.uploadFileCommands;
+    if (uploadFileCommands != null) {
+      built = FirebaseStorageApp(
+        uploadFileCommands: uploadFileCommands,
+        child: built,
+      );
+    }
+
+    return built;
+  }
+}
+
+@visibleForTesting
+class SnapScreenInner extends StatelessWidget {
+  final SnapController controller;
+  final SnapServices services;
+
+  const SnapScreenInner(
+    this.controller,
+    this.services, {
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
       body: Stack(
         children: [
           Column(
@@ -50,31 +102,5 @@ class _SnapScreenState extends State<SnapScreen> {
         ],
       ),
     );
-
-    final addTransactionCommands = controller.addTransactionCommands;
-    if (addTransactionCommands != null) {
-      built = FirebaseDbApp(
-        addTransactionCommands: addTransactionCommands,
-        child: built,
-      );
-    }
-
-    final findNumberCommands = controller.findNumberCommands;
-    if (findNumberCommands != null) {
-      built = OnDeviceOcr(
-        findNumbersCommands: findNumberCommands,
-        child: built,
-      );
-    }
-
-    final uploadFileCommands = controller.uploadFileCommands;
-    if (uploadFileCommands != null) {
-      built = FirebaseStorageApp(
-        uploadFileCommands: uploadFileCommands,
-        child: built,
-      );
-    }
-
-    return built;
   }
 }

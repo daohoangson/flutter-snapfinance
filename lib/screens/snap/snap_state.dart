@@ -57,9 +57,6 @@ class StateFailure extends SnapState {
   final SnapState previous;
 
   const StateFailure._(this.error, this.previous);
-
-  StateInitiatingCamera setVnd(int newVnd) =>
-      StateInitiatingCamera._(vnd: newVnd);
 }
 
 class StateInitiatingCamera extends SnapState {
@@ -67,19 +64,16 @@ class StateInitiatingCamera extends SnapState {
 
   const StateInitiatingCamera._({this.vnd});
 
-  StateInitializedCamera initialized() => StateInitializedCamera._(vnd: vnd);
-
-  StateInitiatingCamera setVnd(int newVnd) =>
+  StateInitiatingCamera enterVnd(int newVnd) =>
       StateInitiatingCamera._(vnd: newVnd);
+
+  StateInitializedCamera initialized() => StateInitializedCamera._(vnd: vnd);
 }
 
 class StateInitializedCamera extends SnapState {
   final int? vnd;
 
   const StateInitializedCamera._({this.vnd});
-
-  StateInitializedCamera setVnd(int newVnd) =>
-      StateInitializedCamera._(vnd: newVnd);
 
   StateTakingPhoto takePhoto(int vnd) => StateTakingPhoto._(vnd);
 }
@@ -90,7 +84,7 @@ class StateTakingPhoto extends SnapState implements Step1 {
 
   const StateTakingPhoto._(this.vnd);
 
-  StateTakingPhoto setVnd(int newVnd) => StateTakingPhoto._(newVnd);
+  StateTakingPhoto enterVnd(int newVnd) => StateTakingPhoto._(newVnd);
 
   Step2 tookPhoto(String photoPath) {
     if (vnd > 0) {
@@ -124,9 +118,15 @@ class StateReviewing extends SnapState implements Step2 {
 
   bool get canContinue => vnd > 0;
 
-  StateAddingTransaction confirm() => StateAddingTransaction._(photoPath, vnd);
+  SnapState confirm() {
+    if (canContinue) {
+      return StateAddingTransaction._(photoPath, vnd);
+    } else {
+      return failure(ArgumentError('canContinue == false'));
+    }
+  }
 
-  StateReviewing setVnd(int newVnd) => StateReviewing._(photoPath, newVnd);
+  StateReviewing tapVnd(int newVnd) => StateReviewing._(photoPath, newVnd);
 }
 
 class StateAddingTransaction extends SnapState implements Step2 {

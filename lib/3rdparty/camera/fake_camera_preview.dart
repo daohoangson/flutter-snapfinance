@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +8,18 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:snapfinance/3rdparty/camera/take_photo_command.dart';
 
-const _assetName = 'assets/placeholders/reddit.jpg';
+const assetNameMidjourney = 'assets/placeholders/midjourney.png';
+const assetNameReddit = 'assets/placeholders/reddit.jpg';
+const assetNames = [
+  assetNameMidjourney,
+  assetNameReddit,
+];
+
+@visibleForTesting
+int? debugRandomSeed;
+
+@visibleForTesting
+var debugTriggerOnInitialized = true;
 
 class FakeCameraPreview extends StatefulWidget {
   final VoidCallback? onInitialized;
@@ -24,14 +36,23 @@ class FakeCameraPreview extends StatefulWidget {
 }
 
 class _FakeCameraPreviewState extends State<FakeCameraPreview> {
+  late final String assetName;
+
   StreamSubscription<TakePhotoCommand>? _takePhotoCommands;
 
   @override
   void initState() {
     super.initState();
+
+    final assetNameId = Random(debugRandomSeed).nextInt(assetNames.length);
+    assetName = assetNames[assetNameId];
+
     _takePhotoCommands = widget.takePhotoCommands?.listen(_onTakePhoto);
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => widget.onInitialized?.call());
+
+    if (debugTriggerOnInitialized) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => widget.onInitialized?.call());
+    }
   }
 
   @override
@@ -55,7 +76,7 @@ class _FakeCameraPreviewState extends State<FakeCameraPreview> {
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: Image.asset(
-        _assetName,
+        assetName,
         fit: BoxFit.cover,
       ),
     );
@@ -63,7 +84,7 @@ class _FakeCameraPreviewState extends State<FakeCameraPreview> {
 
   void _onTakePhoto(TakePhotoCommand cmd) {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final byteData = await rootBundle.load(_assetName);
+      final byteData = await rootBundle.load(assetName);
       final buffer = byteData.buffer;
       final extDir = await getTemporaryDirectory();
       final fileName = DateTime.now().millisecondsSinceEpoch;

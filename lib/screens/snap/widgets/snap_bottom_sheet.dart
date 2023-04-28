@@ -20,7 +20,7 @@ class SnapBottomSheet extends StatelessWidget {
         onFailure: _onFailure,
         onInitiatingCamera: (_) => VndInput(
           keyboardHeight: calculateBottomSheetHeight(context),
-          onDone: (vnd) => controller.move(_, _.setVnd(vnd)),
+          onDone: (vnd) => controller.move(_, _.enterVnd(vnd)),
         ),
         onInitializedCamera: (_) => VndInput(
           keyboardHeight: calculateBottomSheetHeight(context),
@@ -28,7 +28,7 @@ class SnapBottomSheet extends StatelessWidget {
         ),
         onTakingPhoto: (_) => VndInput(
           keyboardHeight: calculateBottomSheetHeight(context),
-          onDone: (vnd) => controller.move(_, _.setVnd(vnd)),
+          onDone: (vnd) => controller.move(_, _.enterVnd(vnd)),
         ),
         onProcessingPhoto: _onProcessingPhotoOrReviewing,
         onReviewing: _onProcessingPhotoOrReviewing,
@@ -72,18 +72,24 @@ class SnapBottomSheet extends StatelessWidget {
     final reviewing = value is StateReviewing ? value : null;
     final canContinue = reviewing?.canContinue ?? false;
 
-    return TwoButtons(
-      negativeOnPressed: () => controller.move(value, value.reset()),
-      negativeText: phrases.again,
-      positiveOnPressed: canContinue && reviewing != null
-          ? () => controller.move(reviewing, reviewing.confirm())
-          : null,
-      positiveText: canContinue
-          ? phrases.save
-          : (controller.foundNumbers.isNotEmpty
-              ? phrases.tapNumber
-              : phrases.tapNumberNada),
-      value: value,
+    return StreamBuilder(
+      builder: (context, snapshot) {
+        return TwoButtons(
+          negativeOnPressed: () => controller.move(value, value.reset()),
+          negativeText: phrases.again,
+          positiveOnPressed: canContinue && reviewing != null
+              ? () => controller.move(reviewing, reviewing.confirm())
+              : null,
+          positiveText: canContinue
+              ? phrases.save
+              : (snapshot.requireData.isNotEmpty
+                  ? phrases.tapNumber
+                  : phrases.tapNumberNada),
+          value: value,
+        );
+      },
+      initialData: controller.foundNumbers,
+      stream: controller.foundNumbersStream,
     );
   }
 }
