@@ -136,12 +136,12 @@ void main() async {
       _TestStep(
         'found 50k',
         (s) => _findNumbersCommands[s]?.numbers?.add(OcrNumber.fromJson(jsonDecode(
-            '{"text":"50000","cornerPoints":[[350,350],[450,350],[450,450],[350,450]]}'))),
+            '{"text":"50000","cornerPoints":[[50,50],[150,150],[150,150],[50,150]]}'))),
       ),
       _TestStep(
         'found 100k',
         (s) => _findNumbersCommands[s]?.numbers?.add(OcrNumber.fromJson(jsonDecode(
-            '{"text":"100000","cornerPoints":[[250,250],[350,250],[350,350],[250,350]]}'))),
+            '{"text":"100000","cornerPoints":[[100,100],[200,100],[200,200],[100,200]]}'))),
       ),
       _TestStep(
         'completed processing',
