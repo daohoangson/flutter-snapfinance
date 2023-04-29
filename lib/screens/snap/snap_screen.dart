@@ -89,7 +89,10 @@ class SnapScreenInner extends StatelessWidget {
                   child: SnapViewport(controller),
                 ),
               ),
-              UploadProgressBar(controller.totalProgressStream),
+              UploadProgressBar(
+                initialData: controller.totalProgress,
+                stream: controller.totalProgressStream,
+              ),
               SnapBottomSheet(controller),
             ],
           ),

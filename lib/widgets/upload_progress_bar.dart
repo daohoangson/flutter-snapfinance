@@ -9,17 +9,23 @@ import 'package:snapfinance/assets.dart';
 var debugRenderColoredBox = false;
 
 class UploadProgressBar extends StatelessWidget {
-  final Stream<double> progress;
+  final double initialData;
+  final Stream<double> stream;
 
-  const UploadProgressBar(this.progress, {super.key});
+  const UploadProgressBar({
+    super.key,
+    required this.initialData,
+    required this.stream,
+  });
 
   @override
   Widget build(BuildContext context) {
     final bar = StreamBuilder(
       builder: (context, snapshot) => LinearProgressIndicator(
-        value: snapshot.data ?? .0,
+        value: snapshot.requireData,
       ),
-      stream: progress,
+      initialData: initialData,
+      stream: stream,
     );
 
     return PortalTarget(
@@ -27,16 +33,16 @@ class UploadProgressBar extends StatelessWidget {
         follower: Alignment.center,
         target: Alignment.topRight,
       ),
-      portalFollower: _ConfettiAnimation(progress),
+      portalFollower: _ConfettiAnimation(stream),
       child: bar,
     );
   }
 }
 
 class _ConfettiAnimation extends StatefulWidget {
-  final Stream<double> progress;
+  final Stream<double> stream;
 
-  const _ConfettiAnimation(this.progress);
+  const _ConfettiAnimation(this.stream);
 
   @override
   State<_ConfettiAnimation> createState() => _ConfettiAnimationState();
@@ -44,7 +50,7 @@ class _ConfettiAnimation extends StatefulWidget {
 
 class _ConfettiAnimationState extends State<_ConfettiAnimation> {
   late final OneShotAnimation _explosion;
-  late final StreamSubscription<double> _progress;
+  late final StreamSubscription<double> _subscription;
 
   var _activateCount = 0;
   var _shouldAnimate = false;
@@ -60,13 +66,13 @@ class _ConfettiAnimationState extends State<_ConfettiAnimation> {
       onStop: () => setState(() => _stopCount++),
     );
 
-    _progress = widget.progress.listen(_onProgressData);
+    _subscription = widget.stream.listen(_onData);
   }
 
   @override
   void dispose() {
     _explosion.dispose();
-    _progress.cancel();
+    _subscription.cancel();
     super.dispose();
   }
 
@@ -109,7 +115,7 @@ class _ConfettiAnimationState extends State<_ConfettiAnimation> {
     );
   }
 
-  void _onProgressData(double value) {
+  void _onData(double value) {
     if (value == .0) {
       // reset animation on new progress (zero value)
       _shouldAnimate = true;
