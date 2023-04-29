@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:snapfinance/3rdparty/vnd/vnd_preview.dart';
-import 'package:snapfinance/screens/snap/snap_state.dart';
+import 'package:snapfinance/screens/snap/snap_controller.dart';
 
 double calculateBottomSheetHeight(BuildContext context) {
   return calculateKeyboardLabelSize(context) * 10;

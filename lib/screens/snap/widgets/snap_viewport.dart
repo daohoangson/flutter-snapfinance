@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:snapfinance/3rdparty/camera/camera_preview.dart';
 import 'package:snapfinance/screens/snap/snap_controller.dart';
-import 'package:snapfinance/screens/snap/snap_state.dart';
 import 'package:snapfinance/widgets/image_viewer.dart';
 
 class SnapViewport extends StatelessWidget {
@@ -28,11 +27,12 @@ class SnapViewport extends StatelessWidget {
         takePhotoCommands: controller.services.takePhotoCommands,
       ),
       onTakingPhoto: (_) => const CameraPreview(),
-      onProcessingPhoto: (processing) => _buildNumbers(processing),
+      onFindingNumbers: (finding) => _buildNumbers(finding),
       onReviewing: (reviewing) => _buildNumbers(
         reviewing,
         onNumberPressed: (v) => controller.move(reviewing, reviewing.tapVnd(v)),
       ),
+      onUploadingFile: (uploading) => _buildStaticImage(uploading),
       onAddingTransaction: (adding) => _buildStaticImage(adding),
       onAddedTransaction: (added) => _buildStaticImage(added),
     );

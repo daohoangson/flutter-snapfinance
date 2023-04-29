@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:snapfinance/3rdparty/vnd/vnd_input.dart';
 import 'package:snapfinance/i18n.dart';
 import 'package:snapfinance/screens/snap/snap_controller.dart';
-import 'package:snapfinance/screens/snap/snap_state.dart';
 import 'package:snapfinance/screens/snap/widgets/bottom_sheet_panel.dart';
 import 'package:snapfinance/screens/snap/widgets/two_buttons.dart';
 
@@ -30,8 +29,12 @@ class SnapBottomSheet extends StatelessWidget {
           keyboardHeight: calculateBottomSheetHeight(context),
           onDone: (vnd) => controller.move(_, _.enterVnd(vnd)),
         ),
-        onProcessingPhoto: _onProcessingPhotoOrReviewing,
-        onReviewing: _onProcessingPhotoOrReviewing,
+        onFindingNumbers: _onFindingNumbersOrReviewing,
+        onReviewing: _onFindingNumbersOrReviewing,
+        onUploadingFile: (uploading) => TwoButtons(
+          positiveText: phrases.addingTransactionRandomized,
+          value: uploading,
+        ),
         onAddingTransaction: (adding) => TwoButtons(
           positiveText: phrases.addingTransactionRandomized,
           value: adding,
@@ -67,20 +70,20 @@ class SnapBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _onProcessingPhotoOrReviewing(Step2 value) {
+  Widget _onFindingNumbersOrReviewing(Step2 value) {
     final phrases = i18n.screens.snap;
     final reviewing = value is StateReviewing ? value : null;
-    final canContinue = reviewing?.canContinue ?? false;
+    final canConfirm = reviewing?.canConfirm ?? false;
 
     return StreamBuilder(
       builder: (context, snapshot) {
         return TwoButtons(
           negativeOnPressed: () => controller.move(value, value.reset()),
           negativeText: phrases.again,
-          positiveOnPressed: canContinue && reviewing != null
+          positiveOnPressed: canConfirm && reviewing != null
               ? () => controller.move(reviewing, reviewing.confirm())
               : null,
-          positiveText: canContinue
+          positiveText: canConfirm
               ? phrases.save
               : (snapshot.requireData.isNotEmpty
                   ? phrases.tapNumber

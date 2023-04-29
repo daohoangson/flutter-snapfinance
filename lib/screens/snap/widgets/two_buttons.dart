@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:snapfinance/screens/snap/snap_state.dart';
+import 'package:snapfinance/screens/snap/snap_controller.dart';
 import 'package:snapfinance/screens/snap/widgets/bottom_sheet_panel.dart';
 
 class TwoButtons extends StatelessWidget {

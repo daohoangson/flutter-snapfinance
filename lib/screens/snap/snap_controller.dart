@@ -9,7 +9,8 @@ import 'package:snapfinance/3rdparty/ml/find_numbers_command.dart';
 import 'package:snapfinance/3rdparty/ml/ocr_number.dart';
 import 'package:snapfinance/screens/snap/snap_progress.dart';
 import 'package:snapfinance/screens/snap/snap_services.dart';
-import 'package:snapfinance/screens/snap/snap_state.dart';
+
+part 'snap_state.dart';
 
 class SnapController {
   final SnapServices services;
@@ -62,8 +63,9 @@ class SnapController {
         onInitiatingCamera: _doNothing,
         onInitializedCamera: _step0Reset,
         onTakingPhoto: _step1TakePhoto,
-        onProcessingPhoto: _step2FindNumbers,
+        onFindingNumbers: _step2FindNumbers,
         onReviewing: _doNothing,
+        onUploadingFile: _step2UploadFileCheckProgress,
         onAddingTransaction: _step3AddTransaction,
         onAddedTransaction: _doNothing,
       );
@@ -86,18 +88,18 @@ class SnapController {
         move(value, value.tookPhoto(photoPath));
         _totalProgress.tookPhoto();
       },
-      onError: (error) => move(value, value.failure(error)),
+      onError: (error) => move(value, value._failure(error)),
     );
 
     services.takePhoto(cmd);
   }
 
-  void _step2FindNumbers(StateProcessingPhoto processing) async {
+  void _step2FindNumbers(StateFindingNumbers finding) async {
     final result = StreamController<OcrNumber>();
-    final cmd = FindNumbersCommand(processing.photoPath, result.sink);
+    final cmd = FindNumbersCommand(finding.photoPath, result.sink);
     final f = cmd.future.then(
-      (_) => move(processing, processing.completed()),
-      onError: (error) => move(processing, processing.failure(error)),
+      (_) => move(finding, finding._completed()),
+      onError: (error) => move(finding, finding._failure(error)),
     );
     f.then((_) {
       // finally: clean up
@@ -109,7 +111,7 @@ class SnapController {
     var numbers = <OcrNumber>[];
     await for (final number in result.stream) {
       final latest = value;
-      if (latest is! Step2 || latest.photoPath != processing.photoPath) {
+      if (latest is! Step2 || latest.photoPath != finding.photoPath) {
         logger.debug('_findNumbers: unexpected latest=$latest');
         continue;
       }
@@ -151,6 +153,21 @@ class SnapController {
     }
   }
 
+  void _step2UploadFileCheckProgress(StateUploadingFile uploading) async {
+    if (_totalProgress.upload >= 1.0) {
+      move(uploading, uploading._completed());
+    } else {
+      await for (final uploadProgress in _totalProgress.uploadStream) {
+        if (!identical(value, uploading)) {
+          break;
+        }
+        if (uploadProgress >= 1.0) {
+          move(uploading, uploading._completed());
+        }
+      }
+    }
+  }
+
   void _step3AddTransaction(StateAddingTransaction adding) async {
     final cmd = AddTransactionCommand(
       vnd: adding.vnd,
@@ -160,7 +177,7 @@ class SnapController {
         move(adding, adding.addedTransaction(transactionId));
         _totalProgress.addedTransaction();
       },
-      onError: (error) => move(adding, adding.failure(error)),
+      onError: (error) => move(adding, adding._failure(error)),
     );
 
     services.addTransaction(cmd);

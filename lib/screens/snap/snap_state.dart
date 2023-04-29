@@ -1,17 +1,20 @@
+part of 'snap_controller.dart';
+
 abstract class SnapState {
   const SnapState();
 
   factory SnapState.initial() => const StateInitiatingCamera._();
 
-  StateFailure failure(dynamic error) => StateFailure._(error, this);
+  StateFailure _failure(dynamic error) => StateFailure._(error, this);
 
   T map<T>({
     required T Function(StateFailure state) onFailure,
     required T Function(StateInitiatingCamera state) onInitiatingCamera,
     required T Function(StateInitializedCamera state) onInitializedCamera,
     required T Function(StateTakingPhoto state) onTakingPhoto,
-    required T Function(StateProcessingPhoto state) onProcessingPhoto,
+    required T Function(StateFindingNumbers state) onFindingNumbers,
     required T Function(StateReviewing state) onReviewing,
+    required T Function(StateUploadingFile state) onUploadingFile,
     required T Function(StateAddingTransaction state) onAddingTransaction,
     required T Function(StateAddedTransaction state) onAddedTransaction,
   }) {
@@ -24,10 +27,12 @@ abstract class SnapState {
       return onInitializedCamera(state);
     } else if (state is StateTakingPhoto) {
       return onTakingPhoto(state);
-    } else if (state is StateProcessingPhoto) {
-      return onProcessingPhoto(state);
+    } else if (state is StateFindingNumbers) {
+      return onFindingNumbers(state);
     } else if (state is StateReviewing) {
       return onReviewing(state);
+    } else if (state is StateUploadingFile) {
+      return onUploadingFile(state);
     } else if (state is StateAddingTransaction) {
       return onAddingTransaction(state);
     } else if (state is StateAddedTransaction) {
@@ -90,21 +95,21 @@ class StateTakingPhoto extends SnapState implements Step1 {
     if (vnd > 0) {
       return StateReviewing._(photoPath, vnd);
     } else {
-      return StateProcessingPhoto._(photoPath);
+      return StateFindingNumbers._(photoPath);
     }
   }
 }
 
-class StateProcessingPhoto extends SnapState implements Step2 {
+class StateFindingNumbers extends SnapState implements Step2 {
   @override
   final String photoPath;
 
   @override
   int get vnd => 0;
 
-  const StateProcessingPhoto._(this.photoPath);
+  const StateFindingNumbers._(this.photoPath);
 
-  StateReviewing completed() => StateReviewing._(photoPath, vnd);
+  StateReviewing _completed() => StateReviewing._(photoPath, vnd);
 }
 
 class StateReviewing extends SnapState implements Step2 {
@@ -116,17 +121,30 @@ class StateReviewing extends SnapState implements Step2 {
 
   const StateReviewing._(this.photoPath, this.vnd);
 
-  bool get canContinue => vnd > 0;
+  bool get canConfirm => vnd > 0;
 
   SnapState confirm() {
-    if (canContinue) {
-      return StateAddingTransaction._(photoPath, vnd);
+    if (canConfirm) {
+      return StateUploadingFile._(photoPath, vnd);
     } else {
-      return failure(ArgumentError('canContinue == false'));
+      return _failure(ArgumentError('canConfirm == false'));
     }
   }
 
   StateReviewing tapVnd(int newVnd) => StateReviewing._(photoPath, newVnd);
+}
+
+class StateUploadingFile extends SnapState implements Step2 {
+  @override
+  final String photoPath;
+
+  @override
+  final int vnd;
+
+  const StateUploadingFile._(this.photoPath, this.vnd);
+
+  StateAddingTransaction _completed() =>
+      StateAddingTransaction._(photoPath, vnd);
 }
 
 class StateAddingTransaction extends SnapState implements Step2 {

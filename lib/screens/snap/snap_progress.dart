@@ -7,31 +7,38 @@ const _progressUploadedFile = .75;
 const _progressAddedTransaction = 1.0;
 
 class SnapProgress {
-  final controller = BehaviorSubject<double>.seeded(.0);
+  final _totalController = BehaviorSubject<double>.seeded(.0);
+  final _uploadController = BehaviorSubject<double>.seeded(.0);
 
-  Stream<double> get stream => controller.stream;
+  Stream<double> get stream => _totalController.stream;
 
-  double get value => controller.value;
+  Stream<double> get uploadStream => _uploadController.stream;
+
+  double get upload => _uploadController.value;
+
+  double get value => _totalController.value;
 
   void close() {
-    controller.close();
+    _totalController.close();
   }
 
   void reset() {
-    controller.add(.0);
+    _totalController.add(.0);
+    _uploadController.add(.0);
   }
 
   void tookPhoto() {
-    controller.add(_progressTookPhoto);
+    _totalController.add(_progressTookPhoto);
   }
 
   void uploadProgress(double value) {
     const previousSteps = _progressTookPhoto;
     const thisStep = _progressUploadedFile - previousSteps;
-    controller.add(previousSteps + thisStep * value);
+    _totalController.add(previousSteps + thisStep * value);
+    _uploadController.add(value);
   }
 
   void addedTransaction() {
-    controller.add(_progressAddedTransaction);
+    _totalController.add(_progressAddedTransaction);
   }
 }

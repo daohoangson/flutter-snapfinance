@@ -19,7 +19,6 @@ import 'package:snapfinance/i18n.dart' as i18n;
 import 'package:snapfinance/screens/snap/snap_controller.dart';
 import 'package:snapfinance/screens/snap/snap_screen.dart';
 import 'package:snapfinance/screens/snap/snap_services.dart';
-import 'package:snapfinance/screens/snap/snap_state.dart';
 import 'package:snapfinance/widgets/image_viewer.dart' as image_viewer;
 import 'package:snapfinance/widgets/upload_progress_bar.dart'
     as upload_progress_bar;
@@ -74,7 +73,7 @@ void main() async {
         },
       ),
       _TestStep(
-        'took photo -> uploading',
+        'took photo -> uploading file',
         (s) {
           when(() => s.services.uploadFile(any())).thenAnswer((invocation) {
             _uploadFileCommands[s] = invocation.positionalArguments[0];
@@ -94,7 +93,7 @@ void main() async {
         (s) => _uploadFileCommands[s]?.progress?.add(1),
       ),
       _TestStep(
-        'tap save',
+        'tap save -> adding transaction',
         (s) {
           when(() => s.services.addTransaction(any())).thenAnswer((invocation) {
             _addTransactionCommands[s] = invocation.positionalArguments[0];
@@ -125,10 +124,14 @@ void main() async {
         },
       ),
       _TestStep(
-        'took photo -> processing',
+        'took photo -> finding numbers & uploading file',
         (s) {
           when(() => s.services.findNumbers(any())).thenAnswer((invocation) {
             _findNumbersCommands[s] = invocation.positionalArguments[0];
+          });
+
+          when(() => s.services.uploadFile(any())).thenAnswer((invocation) {
+            _uploadFileCommands[s] = invocation.positionalArguments[0];
           });
 
           _takePhotoCommands[s]
@@ -142,12 +145,16 @@ void main() async {
             '{"text":"50000","cornerPoints":[[50,50],[150,150],[150,150],[50,150]]}'))),
       ),
       _TestStep(
+        'upload 100%',
+        (s) => _uploadFileCommands[s]?.progress?.add(1),
+      ),
+      _TestStep(
         'found 100k',
         (s) => _findNumbersCommands[s]?.numbers?.add(OcrNumber.fromJson(jsonDecode(
             '{"text":"100000","cornerPoints":[[100,100],[200,100],[200,200],[100,200]]}'))),
       ),
       _TestStep(
-        'completed processing',
+        'completed finding numbers',
         (s) => _findNumbersCommands[s]?.completer.complete(),
       ),
       _TestStep(
@@ -155,13 +162,75 @@ void main() async {
         (s) => s.move((v) => v.reviewing.tapVnd(100000)),
       ),
       _TestStep(
-        'tap save',
+        'tap save -> adding transaction',
         (s) {
           when(() => s.services.addTransaction(any())).thenAnswer((invocation) {
             _addTransactionCommands[s] = invocation.positionalArguments[0];
           });
 
           s.move((v) => v.reviewing.confirm());
+        },
+      ),
+      _TestStep(
+        'added transaction -> the end',
+        (s) => _addTransactionCommands[s]?.completer.complete('foo'),
+      ),
+    ],
+    'slow_upload': [
+      _TestStep(
+        'initialized',
+        (s) => s.move((v) => v.initiating.initialized()),
+      ),
+      _TestStep(
+        'tap 50',
+        (s) async {
+          await s.tester.tap(s.descendant(find.bySemanticsLabel('5')));
+          await s.tester.tap(s.descendant(find.bySemanticsLabel('0')));
+        },
+      ),
+      _TestStep(
+        'tap continue -> taking photo',
+        (s) async {
+          when(() => s.services.takePhoto(any())).thenAnswer((invocation) {
+            _takePhotoCommands[s] = invocation.positionalArguments[0];
+          });
+
+          final keyDone = s.descendant(find.bySemanticsLabel(_labelContinue));
+          await s.tester.tap(keyDone);
+        },
+      ),
+      _TestStep(
+        'took photo -> uploading',
+        (s) {
+          when(() => s.services.uploadFile(any())).thenAnswer((invocation) {
+            _uploadFileCommands[s] = invocation.positionalArguments[0];
+          });
+
+          _takePhotoCommands[s]
+              ?.completer
+              .complete(fake_camera_preview.debugAssetName);
+        },
+      ),
+      _TestStep(
+        'upload 33%',
+        (s) => _uploadFileCommands[s]?.progress?.add(.33),
+      ),
+      _TestStep(
+        'tap save -> still uploading file',
+        (s) => s.move((v) => v.reviewing.confirm()),
+      ),
+      _TestStep(
+        'upload 66%',
+        (s) => _uploadFileCommands[s]?.progress?.add(.66),
+      ),
+      _TestStep(
+        'upload 100% -> adding transaction',
+        (s) {
+          when(() => s.services.addTransaction(any())).thenAnswer((invocation) {
+            _addTransactionCommands[s] = invocation.positionalArguments[0];
+          });
+
+          _uploadFileCommands[s]?.progress?.add(1);
         },
       ),
       _TestStep(
