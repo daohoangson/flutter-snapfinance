@@ -40,6 +40,6 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: test-failures
+          name: ${{ github.sha }}-test-failures
           path: test/**/failures
       - uses: codecov/codecov-action@v3

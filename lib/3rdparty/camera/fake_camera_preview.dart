@@ -7,16 +7,20 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:snapfinance/3rdparty/camera/take_photo_command.dart';
+import 'package:snapfinance/3rdparty/firebase/firebase_logger.dart';
+import 'package:snapfinance/widgets/test_indicator.dart';
 
-const assetNameMidjourney = 'assets/placeholders/midjourney.png';
-const assetNameReddit = 'assets/placeholders/reddit.jpg';
-const assetNames = [
-  assetNameMidjourney,
-  assetNameReddit,
+@visibleForTesting
+const assetNameWhite = 'assets/placeholders/white.png';
+const _assetNameMidjourney = 'assets/placeholders/midjourney.png';
+const _assetNameReddit = 'assets/placeholders/reddit.jpg';
+const _assetNames = [
+  _assetNameMidjourney,
+  _assetNameReddit,
 ];
 
 @visibleForTesting
-int? debugRandomSeed;
+String? debugAssetName;
 
 @visibleForTesting
 var debugTriggerOnInitialized = true;
@@ -44,8 +48,8 @@ class _FakeCameraPreviewState extends State<FakeCameraPreview> {
   void initState() {
     super.initState();
 
-    final assetNameId = Random(debugRandomSeed).nextInt(assetNames.length);
-    assetName = assetNames[assetNameId];
+    final assetNameId = Random().nextInt(_assetNames.length);
+    assetName = debugAssetName ?? _assetNames[assetNameId];
 
     _takePhotoCommands = widget.takePhotoCommands?.listen(_onTakePhoto);
 
@@ -75,9 +79,21 @@ class _FakeCameraPreviewState extends State<FakeCameraPreview> {
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 16 / 9,
-      child: Image.asset(
-        assetName,
-        fit: BoxFit.cover,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              assetName,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Positioned.fill(
+            child: TestIndicator(
+              animate: debugAssetName == null,
+              text: 'Fake camera',
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -98,6 +114,7 @@ class _FakeCameraPreviewState extends State<FakeCameraPreview> {
           ),
         );
         cmd.completer.complete(path);
+        logger.verbose('_onTakePhoto: path=$path');
       } catch (error) {
         cmd.completer.completeError(error);
       }

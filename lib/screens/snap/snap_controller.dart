@@ -108,8 +108,6 @@ class SnapController {
 
     var numbers = <OcrNumber>[];
     await for (final number in result.stream) {
-      logger.verbose('number=${number.value} ${number.cornerPoints}');
-
       final latest = value;
       if (latest is! Step2 || latest.photoPath != processing.photoPath) {
         logger.debug('_findNumbers: unexpected latest=$latest');

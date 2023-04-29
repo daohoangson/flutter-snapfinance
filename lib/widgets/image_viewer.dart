@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:snapfinance/3rdparty/ml/ocr_number.dart';
 import 'package:snapfinance/widgets/loading.dart';
+import 'package:snapfinance/widgets/test_indicator.dart';
 
 @visibleForTesting
 var debugUseAssetImage = false;
@@ -58,6 +59,7 @@ class _ImageViewerState extends State<ImageViewer> {
 
   @override
   Widget build(BuildContext context) {
+    final imageProvider = this.imageProvider;
     final imageSize = _imageSize;
 
     if (imageSize == null) {
@@ -89,6 +91,13 @@ class _ImageViewerState extends State<ImageViewer> {
                   image: imageProvider,
                 ),
               ),
+              if (imageProvider is AssetImage)
+                Positioned.fill(
+                  child: TestIndicator(
+                    animate: false,
+                    text: imageProvider.assetName,
+                  ),
+                ),
               ...widget.numbers.map(
                 (number) {
                   final p0 = number.cornerPoints[0];

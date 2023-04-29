@@ -26,7 +26,7 @@ import 'package:synchronized/synchronized.dart';
 void main() async {
   debugCheckIntrinsicSizes = true;
   camera_preview.debugIsDeviceOverride = false;
-  fake_camera_preview.debugRandomSeed = 1;
+  fake_camera_preview.debugAssetName = fake_camera_preview.assetNameWhite;
   fake_camera_preview.debugTriggerOnInitialized = false;
   image_viewer.debugUseAssetImage = true;
   i18n.debugRandomSeed = 1;
@@ -79,7 +79,7 @@ void main() async {
 
           _takePhotoCommands[s]
               ?.completer
-              .complete(fake_camera_preview.assetNameMidjourney);
+              .complete(fake_camera_preview.debugAssetName);
         },
       ),
       _TestStep(
@@ -130,7 +130,7 @@ void main() async {
 
           _takePhotoCommands[s]
               ?.completer
-              .complete(fake_camera_preview.assetNameMidjourney);
+              .complete(fake_camera_preview.debugAssetName);
         },
       ),
       _TestStep(
