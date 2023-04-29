@@ -5,6 +5,9 @@ import 'package:flutter_portal/flutter_portal.dart';
 import 'package:rive/rive.dart';
 import 'package:snapfinance/assets.dart';
 
+@visibleForTesting
+var debugRenderColoredBox = false;
+
 class UploadProgressBar extends StatelessWidget {
   final Stream<double> progress;
 
@@ -40,26 +43,42 @@ class _ConfettiAnimation extends StatefulWidget {
 }
 
 class _ConfettiAnimationState extends State<_ConfettiAnimation> {
-  final _explosion = OneShotAnimation('Explosion', autoplay: false);
+  late final OneShotAnimation _explosion;
   late final StreamSubscription<double> _progress;
 
-  var shouldAnimate = false;
+  var _activateCount = 0;
+  var _shouldAnimate = false;
+  var _stopCount = 0;
 
   @override
   void initState() {
     super.initState();
+
+    _explosion = OneShotAnimation(
+      'Explosion',
+      autoplay: true,
+      onStop: () => setState(() => _stopCount++),
+    );
+
     _progress = widget.progress.listen(_onProgressData);
   }
 
   @override
   void dispose() {
+    _explosion.dispose();
     _progress.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
+    Widget built = Opacity(
+      // the animation has a weird initial artifact
+      // https://github.com/daohoangson/flutter-snapfinance/blob/c69e57c7260314312beb11a763fa401a14b5c2ab/test/screens/snap/goldens/find_numbers.png
+      // so we have to auto play it once to clean up
+      // the first activation will be near invisible
+      // (zero opacity doesn't work so we are using a very low value)
+      opacity: _stopCount == 0 ? .01 : 1,
       child: RiveAnimation.asset(
         assets.animations.confetti,
         controllers: [_explosion],
@@ -72,16 +91,33 @@ class _ConfettiAnimationState extends State<_ConfettiAnimation> {
         },
       ),
     );
+
+    if (debugRenderColoredBox) {
+      built = ColoredBox(
+        color: _activateCount == 0
+            ? Colors.transparent
+            : (_activateCount == 1
+                ? const Color(0x11FF0000) // red
+                : const Color(0x1100FF00) // green
+            ),
+        child: built,
+      );
+    }
+
+    return IgnorePointer(
+      child: built,
+    );
   }
 
   void _onProgressData(double value) {
     if (value == .0) {
       // reset animation on new progress (zero value)
-      shouldAnimate = true;
+      _shouldAnimate = true;
     }
-    if (value >= 1.0 && shouldAnimate) {
+    if (value >= 1.0 && _shouldAnimate) {
       _explosion.isActive = true;
-      shouldAnimate = false;
+      _activateCount++;
+      _shouldAnimate = false;
     }
   }
 }

@@ -21,6 +21,8 @@ import 'package:snapfinance/screens/snap/snap_screen.dart';
 import 'package:snapfinance/screens/snap/snap_services.dart';
 import 'package:snapfinance/screens/snap/snap_state.dart';
 import 'package:snapfinance/widgets/image_viewer.dart' as image_viewer;
+import 'package:snapfinance/widgets/upload_progress_bar.dart'
+    as upload_progress_bar;
 import 'package:synchronized/synchronized.dart';
 
 void main() async {
@@ -30,6 +32,7 @@ void main() async {
   fake_camera_preview.debugTriggerOnInitialized = false;
   image_viewer.debugUseAssetImage = true;
   i18n.debugRandomSeed = 1;
+  upload_progress_bar.debugRenderColoredBox = true;
 
   setUpAll(() {
     registerFallbackValue(AddTransactionCommand(vnd: 0));
