@@ -12,11 +12,13 @@ import 'package:snapfinance/widgets/test_indicator.dart';
 
 @visibleForTesting
 const assetNameWhite = 'assets/placeholders/white.png';
-const _assetNameMidjourney = 'assets/placeholders/midjourney.png';
-const _assetNameReddit = 'assets/placeholders/reddit.jpg';
 const _assetNames = [
-  _assetNameMidjourney,
-  _assetNameReddit,
+  'assets/placeholders/android_up.jpg',
+  'assets/placeholders/android_left.jpg',
+  'assets/placeholders/android_right.jpg',
+  'assets/placeholders/iphone_up.jpg',
+  'assets/placeholders/iphone_left.jpg',
+  'assets/placeholders/iphone_right.jpg',
 ];
 
 @visibleForTesting
