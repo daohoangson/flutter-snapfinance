@@ -13,7 +13,18 @@ jobs:
         with:
           cache: true
 
-      - run: flutter build apk --split-per-abi
+      - name: Run flutter build apk
+        run: |
+          set -e
+
+          # remove placeholders to reduce APK file size
+          ( \
+            cd ./assets/placeholders && \
+            rm -f ./* && \
+            echo hello > world \
+          )
+
+          flutter build apk --split-per-abi
 
       - uses: actions/upload-artifact@v3
         with:
